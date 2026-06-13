@@ -212,14 +212,14 @@ const TURNOS = ['mañana','tarde','noche'];
 const CATS   = ['Lubricantes','Minimercado','Gas + Hielo'];
 
 const USERS = [
-  {id:'franco',  name:'Franco',  role:'admin',    pass:'franco123'},
-  {id:'sergio',  name:'Sergio',  role:'operador', pass:'sergio123'},
-  {id:'elias',   name:'Elías',   role:'operador', pass:'elias123'},
-  {id:'luciano', name:'Luciano', role:'operador', pass:'luciano123'},
-  {id:'gabi',    name:'Gabi',    role:'operador', pass:'gabi123'},
-  {id:'eitan',   name:'Eitan',   role:'operador', pass:'eitan123'},
-  {id:'anibal',  name:'Aníbal',  role:'operador', pass:'anibal123'},
-  {id:'agus',    name:'Agus',    role:'operador', pass:'agus123'},
+  {id:'franco',  name:'Franco',  role:'admin',    pass:'franco123', refuerzo:false},
+  {id:'sergio',  name:'Sergio',  role:'operador', pass:'sergio123', refuerzo:false},
+  {id:'elias',   name:'Elías',   role:'operador', pass:'elias123',  refuerzo:false},
+  {id:'luciano', name:'Luciano', role:'operador', pass:'luciano123',refuerzo:false},
+  {id:'gabi',    name:'Gabi',    role:'operador', pass:'gabi123',   refuerzo:false},
+  {id:'eitan',   name:'Eitan',   role:'operador', pass:'eitan123',  refuerzo:true},
+  {id:'anibal',  name:'Aníbal',  role:'operador', pass:'anibal123', refuerzo:true},
+  {id:'agus',    name:'Agus',    role:'operador', pass:'agus123',   refuerzo:true},
 ];
 
 let currentUser=null,currentCat=0,admSection='resumen',admCat=0;
@@ -346,7 +346,9 @@ function initOp(){
   document.getElementById('op-badge-turno').className='badge badge-'+T.nombre;
   document.getElementById('op-fecha').textContent=T.fecha;
   document.getElementById('op-num').textContent='Planilla '+planillaStr(T.num);
-  document.getElementById('op-user-badge').textContent=currentUser.name;
+  const badge = document.getElementById('op-user-badge');
+  badge.textContent = currentUser.name + (currentUser.refuerzo ? ' ★' : '');
+  badge.title = currentUser.refuerzo ? 'Refuerzo de turno' : '';
   buildOpTabs();renderOpTable();updateCierreBar();
 }
 function buildOpTabs(){
@@ -517,7 +519,39 @@ function updateCierreBar(){
   }
 }
 
+function puedeHacerTurno(){
+  // Refuerzos pueden hacer turnos consecutivos
+  if(currentUser.refuerzo) return {ok:true};
+  // Para el resto: verificar que no hayan cerrado el turno anterior
+  const turnoAnteriorNum = T.num - 1;
+  if(turnoAnteriorNum < PLANILLA_INI) return {ok:true}; // primer turno del sistema
+  const cierres = getCierres();
+  const anterior = cierres[tKey(turnoAnteriorNum)];
+  if(anterior && anterior.user === currentUser.name){
+    const turnoNombreAnterior = anterior.turnoNombre || '';
+    return {
+      ok: false,
+      msg: `No podés cerrar dos turnos consecutivos. Cerraste el turno <strong>${planillaStr(turnoAnteriorNum)}</strong> (${turnoNombreAnterior}). Este turno debe cerrarlo otro empleado.`
+    };
+  }
+  return {ok:true};
+}
+
 function confirmarCierre(){
+  const check = puedeHacerTurno();
+  if(!check.ok){
+    const modal=document.getElementById('modal');
+    modal.innerHTML=`<div class="modal-overlay">
+      <div class="modal">
+        <h2 style="color:#A32D2D"><i class="ti ti-alert-circle"></i> Turno no permitido</h2>
+        <p>${check.msg}</p>
+        <div class="modal-btns">
+          <button class="btn btn-primary" onclick="document.getElementById('modal').innerHTML=''">Entendido</button>
+        </div>
+      </div>
+    </div>`;
+    return;
+  }
   const{u,m}=getTurnoTotals();
   const modal=document.getElementById('modal');
   modal.innerHTML=`<div class="modal-overlay">
