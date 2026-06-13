@@ -219,17 +219,20 @@ function planillaNum(diffDays, ti){
 
 // Fecha actual en Argentina
 function ahoraAR(){
-  const p=new Intl.DateTimeFormat('en-CA',{
-    timeZone:'America/Argentina/Buenos_Aires',
-    year:'numeric',month:'2-digit',day:'2-digit',
-    hour:'2-digit',minute:'2-digit',hour12:false
-  }).formatToParts(new Date());
-  const g=t=>p.find(x=>x.type===t)?.value||'00';
-  return {
-    fk:`${g('year')}-${g('month')}-${g('day')}`,
-    hora:parseInt(g('hour')),
-    min:parseInt(g('minute')),
-    hhmm:`${g('hour')}:${g('minute')}`
+  // Usar offset fijo UTC-3 para Argentina (no usa DST)
+  const now=new Date();
+  const utc=now.getTime()+now.getTimezoneOffset()*60000;
+  const ar=new Date(utc-3*3600000); // UTC-3
+  const y=ar.getFullYear();
+  const mo=String(ar.getMonth()+1).padStart(2,'0');
+  const d=String(ar.getDate()).padStart(2,'0');
+  const h=ar.getHours();
+  const mi=String(ar.getMinutes()).padStart(2,'0');
+  return{
+    fk:`${y}-${mo}-${d}`,
+    hora:h,
+    min:ar.getMinutes(),
+    hhmm:`${String(h).padStart(2,'0')}:${mi}`
   };
 }
 
