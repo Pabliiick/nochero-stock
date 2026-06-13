@@ -677,14 +677,15 @@ function renderTurnos(detailKey){
       <td><strong>${planillaStr(v.planilla)}</strong></td>
       <td>${v.fecha}</td>
       <td>${turnoNombre?`<span class="badge badge-${turnoNombre}">${turnoNombre}</span>`:''}</td>
-      <td>${v.user}</td><td>${v.hora}</td>
+      <td>${v.user}${v.editadoPor?' <span style="font-size:10px;color:#185FA5">(editado)</span>':''}</td><td>${v.hora}</td>
       <td>${v.totalU}</td>
       <td>$${v.totalM.toLocaleString('es-AR')}</td>
       <td><i class="ti ti-chevron-${isOpen?'up':'down'}" style="color:#6b7280;font-size:14px"></i></td>
     </tr>`;
     if(isOpen){
+      const em=turnoEditModes[k]||false;
       html+=`<tr><td colspan="8" style="padding:0;background:#f9fafb">
-        <div style="padding:1rem">${renderTurnoDetalle(k,v)}</div>
+        <div style="padding:1rem">${renderTurnoDetalle(k,v,em)}</div>
       </td></tr>`;
     }
   }
@@ -692,45 +693,136 @@ function renderTurnos(detailKey){
   return html;
 }
 
-function renderTurnoDetalle(tKey, cierre){
+function renderTurnoDetalle(tk, cierre, editMode){
   const s=getSales();
-  const data=s[tKey]||{};
-  let html=`<div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#1a1a1a">
-    Detalle de ventas — Planilla ${planillaStr(cierre.planilla)} · Turno ${cierre.turnoNombre||''} · ${cierre.fecha}
+  const data=s[tk]||{};
+  let html=`<div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px;flex-wrap:wrap;gap:8px">
+    <div style="font-size:13px;font-weight:600;color:#1a1a1a">
+      Planilla ${planillaStr(cierre.planilla)} · Turno ${cierre.turnoNombre||''} · ${cierre.fecha}
+      <span style="font-size:12px;font-weight:400;color:#6b7280"> — cerrado por ${cierre.user} a las ${cierre.hora}</span>
+    </div>
+    ${!editMode?`<button class="btn btn-sm" style="border-color:#185FA5;color:#185FA5" onclick="toggleEditTurno('${tk}',true)">
+      <i class="ti ti-edit"></i> Corregir ventas
+    </button>`:`<button class="btn btn-sm" onclick="toggleEditTurno('${tk}',false)">
+      <i class="ti ti-x"></i> Cancelar edición
+    </button>`}
   </div>`;
 
   let hayVentas=false;
+  let totalU=0, totalM=0;
+
   for(const cat of CATS){
-    if(!data[cat]) continue;
-    const prods=Object.entries(data[cat]).filter(([,q])=>q>0);
-    if(!prods.length) continue;
+    const catData=data[cat]||{};
+    const allProds=products[cat]||[];
+    // En modo edición mostramos todos los productos; en vista solo los que tienen ventas
+    const prodsAMostrar = editMode
+      ? allProds.filter(p=>p.nombre)
+      : allProds.filter(p=>p.nombre && (catData[p.id]||0)>0);
+    if(!prodsAMostrar.length) continue;
     hayVentas=true;
-    html+=`<div style="font-size:12px;font-weight:600;color:#6b7280;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">${cat}</div>`;
+
+    html+=`<div style="font-size:11px;font-weight:700;color:#6b7280;margin:10px 0 4px;text-transform:uppercase;letter-spacing:.5px">${cat}</div>`;
     html+=`<table style="width:100%;font-size:13px;border-collapse:collapse">
       <thead><tr>
-        <th style="text-align:left;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb">Producto</th>
-        <th style="text-align:center;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb">Cantidad</th>
-        <th style="text-align:right;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb">Precio unit.</th>
-        <th style="text-align:right;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb">Subtotal</th>
+        <th style="text-align:left;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb;background:#f9fafb">Producto</th>
+        <th style="text-align:center;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb;background:#f9fafb">Cantidad</th>
+        <th style="text-align:right;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb;background:#f9fafb">Precio</th>
+        <th style="text-align:right;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb;background:#f9fafb">Subtotal</th>
       </tr></thead><tbody>`;
-    for(const [pid,qty] of prods){
-      const p=(products[cat]||[]).find(x=>x.id===pid);
-      const nombre=p?p.nombre:pid;
-      const precio=p?p.precio:0;
-      html+=`<tr>
-        <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6">${nombre}</td>
-        <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:center"><span class="badge badge-ok">${qty}</span></td>
-        <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:right;color:#6b7280">$${precio.toLocaleString('es-AR')}</td>
-        <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:600">$${(qty*precio).toLocaleString('es-AR')}</td>
-      </tr>`;
+
+    for(const p of prodsAMostrar){
+      const qty=catData[p.id]||0;
+      const subtotal=qty*p.precio;
+      totalU+=qty; totalM+=subtotal;
+      if(editMode){
+        html+=`<tr>
+          <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6">${p.nombre}</td>
+          <td style="padding:4px 8px;border-bottom:1px solid #f3f4f6;text-align:center">
+            <input type="number" min="0" value="${qty}"
+              style="width:60px;padding:4px;text-align:center;border:1.5px solid #3B6D11;border-radius:6px;font-size:13px;font-family:inherit"
+              id="admEdit_${tk}_${cat}_${p.id}"
+              onchange="recalcAdmEdit('${tk}')">
+          </td>
+          <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:right;color:#6b7280">$${p.precio.toLocaleString('es-AR')}</td>
+          <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:600" id="sub_${tk}_${cat}_${p.id}">$${subtotal.toLocaleString('es-AR')}</td>
+        </tr>`;
+      } else {
+        if(qty===0) continue;
+        html+=`<tr>
+          <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6">${p.nombre}</td>
+          <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:center"><span class="badge badge-ok">${qty}</span></td>
+          <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:right;color:#6b7280">$${p.precio.toLocaleString('es-AR')}</td>
+          <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:600">$${subtotal.toLocaleString('es-AR')}</td>
+        </tr>`;
+      }
     }
     html+=`</tbody></table>`;
   }
-  if(!hayVentas) html+=`<div style="color:#9ca3af;font-size:13px">Sin ventas registradas en este turno.</div>`;
-  html+=`<div style="margin-top:12px;text-align:right;font-size:14px;font-weight:700;color:#1a1a1a">
-    Total: $${cierre.totalM.toLocaleString('es-AR')} · ${cierre.totalU} unidades
+
+  if(!hayVentas&&!editMode) html+=`<div style="color:#9ca3af;font-size:13px">Sin ventas registradas en este turno.</div>`;
+
+  html+=`<div style="margin-top:12px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:8px">
+    <div id="admEdit-total-${tk}" style="font-size:14px;font-weight:700;color:#1a1a1a">
+      Total: $${totalM.toLocaleString('es-AR')} · ${totalU} unidades
+    </div>
+    ${editMode?`<button class="btn btn-green" onclick="guardarEdicionTurno('${tk}')">
+      <i class="ti ti-device-floppy"></i> Guardar correcciones
+    </button>`:''}
   </div>`;
   return html;
+}
+
+let turnoEditModes={};
+function toggleEditTurno(tk, mode){
+  turnoEditModes[tk]=mode;
+  renderAdmContent();
+  // Scroll to the open row
+  setTimeout(()=>{
+    const el=document.getElementById('admEdit_'+tk+'_'+Object.keys(getSales()[tk]||{CATS:CATS})[0]);
+    if(el) el.scrollIntoView({behavior:'smooth',block:'center'});
+  },100);
+}
+
+function recalcAdmEdit(tk){
+  const s=getSales();
+  let totalU=0,totalM=0;
+  for(const cat of CATS){
+    for(const p of (products[cat]||[])){
+      const inp=document.getElementById(`admEdit_${tk}_${cat}_${p.id}`);
+      if(!inp) continue;
+      const qty=parseInt(inp.value)||0;
+      const sub=qty*p.precio;
+      totalU+=qty;totalM+=sub;
+      const subEl=document.getElementById(`sub_${tk}_${cat}_${p.id}`);
+      if(subEl) subEl.textContent='$'+sub.toLocaleString('es-AR');
+    }
+  }
+  const totalEl=document.getElementById('admEdit-total-'+tk);
+  if(totalEl) totalEl.innerHTML=`Total: <span style="color:#185FA5">$${totalM.toLocaleString('es-AR')}</span> · ${totalU} unidades`;
+}
+
+function guardarEdicionTurno(tk){
+  const s=getSales();
+  if(!s[tk]) s[tk]={};
+  let totalU=0,totalM=0;
+  for(const cat of CATS){
+    if(!s[tk][cat]) s[tk][cat]={};
+    for(const p of (products[cat]||[])){
+      const inp=document.getElementById(`admEdit_${tk}_${cat}_${p.id}`);
+      if(!inp) continue;
+      const qty=parseInt(inp.value)||0;
+      if(qty>0){s[tk][cat][p.id]=qty;totalU+=qty;totalM+=qty*p.precio;}
+      else{delete s[tk][cat][p.id];}
+    }
+  }
+  saveSales(s);
+  // Update cierre totals
+  const c=getCierres();
+  if(c[tk]){c[tk].totalU=totalU;c[tk].totalM=totalM;c[tk].editadoPor='Franco';c[tk].editadoHora=new Date().toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});}
+  saveCierres(c);
+  turnoEditModes[tk]=false;
+  toast('✓ Correcciones guardadas','success');
+  renderAdmContent();
 }
 function renderStock(){
   const total=Object.values(products).reduce((a,v)=>a+v.length,0);
