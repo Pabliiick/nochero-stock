@@ -246,8 +246,8 @@ function getTurno(d){
   if(diff===0){num=PLANILLA_INI+(ti-START_TI);if(num<PLANILLA_INI)num=PLANILLA_INI;}
   else{const t0=3-START_TI;num=PLANILLA_INI+t0+(diff-1)*3+ti;}
   const fk=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
-  num += getPlanillaOffset();
-  return{num,nombre:TURNOS[ti],idx:ti,fecha:day.toLocaleDateString('es-AR'),fechaKey:fk,diff,ti};
+  const displayNum = num + getPlanillaOffset();
+  return{num,displayNum,nombre:TURNOS[ti],idx:ti,fecha:day.toLocaleDateString('es-AR'),fechaKey:fk,diff,ti};
 }
 const T=getTurno();
 
@@ -327,7 +327,7 @@ document.addEventListener('DOMContentLoaded',()=>{
   document.getElementById('login-turno-info').innerHTML =
     `<div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:2px">${ahoraAR} hs</div>
      <div style="margin-bottom:2px">Turno <strong>${T.nombre}</strong> · ${T.fecha}</div>
-     <div>Planilla <strong>${planillaStr(T.num)}</strong></div>`;
+     <div>Planilla <strong>${planillaStr(T.displayNum||T.num)}</strong></div>`;
 });
 
 function doLogin(){
@@ -354,7 +354,7 @@ function initOp(){
   document.getElementById('op-badge-turno').textContent='Turno '+T.nombre;
   document.getElementById('op-badge-turno').className='badge badge-'+T.nombre;
   document.getElementById('op-fecha').textContent=T.fecha;
-  document.getElementById('op-num').textContent='Planilla '+planillaStr(T.num);
+  document.getElementById('op-num').textContent='Planilla '+planillaStr(T.displayNum||T.num);
   const badge = document.getElementById('op-user-badge');
   badge.textContent = currentUser.name + (currentUser.refuerzo ? ' ★' : '');
   badge.title = currentUser.refuerzo ? 'Refuerzo de turno' : '';
@@ -522,8 +522,8 @@ function updateCierreBar(){
     info.className='cierre-info';
     const{u,m}=getTurnoTotals();
     info.innerHTML=u>0
-      ?`Turno <strong>${planillaStr(T.num)}</strong> · <strong>${u} uds</strong> · <strong>$${m.toLocaleString('es-AR')}</strong>`
-      :`Turno <strong>${planillaStr(T.num)}</strong> · Sin ventas registradas aún`;
+      ?`Turno <strong>${planillaStr(T.displayNum||T.num)}</strong> · <strong>${u} uds</strong> · <strong>$${m.toLocaleString('es-AR')}</strong>`
+      :`Turno <strong>${planillaStr(T.displayNum||T.num)}</strong> · Sin ventas registradas aún`;
     btn.style.display='';
   }
 }
@@ -566,7 +566,7 @@ function confirmarCierre(){
   modal.innerHTML=`<div class="modal-overlay">
     <div class="modal">
       <h2><i class="ti ti-lock"></i> ¿Cerrar turno?</h2>
-      <p>Planilla <strong>${planillaStr(T.num)}</strong> · Turno <strong>${T.nombre}</strong> · ${T.fecha}<br><br>
+      <p>Planilla <strong>${planillaStr(T.displayNum||T.num)}</strong> · Turno <strong>${T.nombre}</strong> · ${T.fecha}<br><br>
       <strong>${u} unidades vendidas</strong><br>
       Total: <strong>$${m.toLocaleString('es-AR')}</strong><br><br>
       Una vez cerrado no podés agregar más ventas a este turno.</p>
@@ -599,14 +599,28 @@ function getSalesDayClosed(cat,id,fk){
     return a+((s[k]?.[cat]?.[id])||0);
   },0);
 }
+function checkPlanillaOffset(){
+  const offset = getPlanillaOffset();
+  if(offset !== 0){
+    const el = document.getElementById('adm-content');
+    if(el) el.insertAdjacentHTML('beforebegin', `
+      <div class="alert alert-warning" style="margin-bottom:1rem">
+        <i class="ti ti-alert-triangle"></i>
+        <span>Hay un ajuste de planilla activo (+${offset}). Si los números no coinciden, 
+        <a href="#" onclick="savePlanillaOffset&&(localStorage.removeItem('nochero_planilla_offset'),location.reload())" 
+        style="color:#633806;font-weight:600">hacé clic acá para resetear</a>.</span>
+      </div>`);
+  }
+}
 function initAdm(){
   admFechaKey = getFechaHoyAR(); // siempre arranca mostrando hoy
   document.getElementById('adm-badge-turno').textContent='Turno '+T.nombre;
   document.getElementById('adm-badge-turno').className='badge badge-'+T.nombre;
   document.getElementById('adm-fecha').textContent=T.fecha;
-  document.getElementById('adm-num').textContent='Planilla '+planillaStr(T.num);
+  document.getElementById('adm-num').textContent='Planilla '+planillaStr(T.displayNum||T.num);
   document.getElementById('adm-user-badge').textContent=currentUser.name;
   renderAdmContent();
+  setTimeout(checkPlanillaOffset,100);
 }
 function showAdm(name,btn){
   admSection=name;
@@ -1003,7 +1017,7 @@ function confirmarBorrar(k){
 
 function renderStock(){
   const total=Object.values(products).reduce((a,v)=>a+v.length,0);
-  const planillaActual=T.num;
+  const planillaActual=T.displayNum||T.num;
   const offsetActual=getPlanillaOffset();
   return`<div class="card">
     <div class="section-title"><i class="ti ti-refresh"></i> Recargar desde Google Sheets</div>
@@ -1014,7 +1028,7 @@ function renderStock(){
   <div class="card">
     <div class="section-title"><i class="ti ti-hash"></i> Actualizar número de planilla</div>
     <p style="font-size:13px;color:#6b7280;margin-bottom:12px">
-      Planilla actual del sistema: <strong>${planillaStr(planillaActual)}</strong>
+      Planilla actual del sistema: <strong>${planillaStr(T.num)}</strong> (calculada) → se muestra como <strong>${planillaStr(planillaActual)}</strong>
       ${offsetActual!==0?`<span style="font-size:12px;color:#185FA5"> (ajuste aplicado: ${offsetActual>0?'+':''}${offsetActual})</span>`:''}
     </p>
     <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
