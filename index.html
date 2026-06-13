@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Nochero · Control de Stock</title>
+<title>Stock Nochero</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
 *{box-sizing:border-box;margin:0;padding:0}
@@ -121,7 +121,7 @@ td.col-total{background:#f0fce8;text-align:center;padding:6px 8px}
 <div id="screen-login" class="screen active">
   <div class="login-wrap">
     <div style="text-align:center;margin-bottom:1.5rem">
-      <div style="font-size:26px;font-weight:700">⛽ <span style="color:#185FA5">Nochero</span></div>
+      <div style="font-size:26px;font-weight:700">⛽ <span style="color:#185FA5">Stock Nochero</span></div>
       <div style="font-size:13px;color:#6b7280;margin-top:4px">Control de stock · Lubricantes y Accesorios</div>
     </div>
     <div class="card">
@@ -143,7 +143,7 @@ td.col-total{background:#f0fce8;text-align:center;padding:6px 8px}
 <div id="screen-operador" class="screen">
   <div class="container">
     <div class="header">
-      <div class="logo">⛽ <span>Nochero</span></div>
+      <div class="logo">⛽ <span>Stock Nochero</span></div>
       <div class="header-right">
         <div class="turno-bar">
           <span class="badge" id="op-badge-turno"></span>
@@ -182,7 +182,7 @@ td.col-total{background:#f0fce8;text-align:center;padding:6px 8px}
 <div id="screen-admin" class="screen">
   <div class="container">
     <div class="header">
-      <div class="logo">⛽ <span>Nochero</span> <span style="font-size:13px;font-weight:400;color:#6b7280">— Administrador</span></div>
+      <div class="logo">⛽ <span>Stock Nochero</span> <span style="font-size:13px;font-weight:400;color:#6b7280">— Administrador</span></div>
       <div class="header-right">
         <div class="turno-bar">
           <span class="badge" id="adm-badge-turno"></span>
@@ -364,7 +364,7 @@ function renderOpTable(){
 
   const banner=document.getElementById('op-cerrado-banner');
   if(banner) banner.innerHTML=cerrado
-    ?`<div class="alert alert-warning" style="margin-bottom:1rem"><i class="ti ti-lock"></i> <strong>Turno cerrado</strong> — Este turno ya fue cerrado y enviado a Franco.</div>`:'';
+    ?`<div class="alert alert-warning" style="margin-bottom:1rem"><i class="ti ti-lock"></i> <strong>Turno cerrado</strong> — Este turno ya fue cerrado e informado a administración.</div>`:'';
 
   if(!sheetsLoaded){el.innerHTML='<div class="alert alert-warning"><i class="ti ti-loader"></i> Cargando productos...</div>';return;}
   if(!prods.length){el.innerHTML='<div class="alert alert-info">Sin productos encontrados.</div>';return;}
