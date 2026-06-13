@@ -624,66 +624,70 @@ function renderAdmContent(){
 function renderResumen(){
   if(!admFechaKey) admFechaKey = getFechaHoyAR();
   const fk = admFechaKey;
-  const cat=CATS[admCat];
-  // Solo suma ventas de turnos YA cerrados
-  const rows=(products[cat]||[]).filter(p=>p.nombre).map(p=>{
-    const v=getSalesDayClosed(cat,p.id,fk);
-    return{...p,ventas:v,monto:v*p.precio,sf:p.stockInicial-v};
-  });
-  const totU=rows.reduce((a,r)=>a+r.ventas,0);
-  const totM=rows.reduce((a,r)=>a+r.monto,0);
-  const totP=rows.filter(r=>r.ventas>0).length;
-  const keys=dayKeys(fk); // lista de tKeys para este día
-  // Mapear cada turno (mañana/tarde/noche) a su key correcta
-  const porTurno=TURNOS.map((nom,ti)=>{
+  const cat = CATS[admCat];
+
+  // Variables de contexto
+  const FECHA_INICIO = '2026-06-13';
+  const dayObj = new Date(fk+'T12:00:00');
+  const startObj = new Date(2026,5,13);
+  const diffFk = Math.round((dayObj-startObj)/86400000);
+  const esHoy = fk === getFechaHoyAR();
+  const esPrimerDia = fk <= FECHA_INICIO;
+
+  // Hora actual en Argentina para saber qué turno está activo
+  const ahoraAR = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
+  const horaAR = ahoraAR.getHours();
+  const turnoActualIdx = horaAR>=6&&horaAR<14?0:horaAR>=14&&horaAR<22?1:2;
+
+  // Construir info de cada turno del día
+  const porTurno = TURNOS.map((nom,ti)=>{
     // ti: 0=mañana, 1=tarde, 2=noche
-    // Día 0 (13/6): solo existen tarde(ti=1) y noche(ti=2)
     if(diffFk===0 && ti < START_TI){
       return{nom,m:0,u:0,cerrado:false,ci:null,num:null,k:'',estado:'no-aplica'};
     }
     let num;
     if(diffFk===0){
-      num = PLANILLA_INI + (ti - START_TI); // tarde=0→19186, noche=1→19187
+      num = PLANILLA_INI + (ti - START_TI);
     } else {
-      const t0 = 3 - START_TI; // 2 turnos en dia 0
+      const t0 = 3 - START_TI;
       num = PLANILLA_INI + t0 + (diffFk-1)*3 + ti;
     }
     num += getPlanillaOffset();
     const k = tKey(num);
     const s = getSales();
     let m=0,u=0;
-    const cerrado=isCerrado(num);
-    const ci=getCierres()[k]||null;
+    const cerrado = isCerrado(num);
+    const ci = getCierres()[k]||null;
     if(ci){m=ci.totalM;u=ci.totalU;}
     else if(s[k]?.[cat]){
-      for(const[pid,q]of Object.entries(s[k][cat])){
-        const p=(products[cat]||[]).find(x=>x.id===pid);if(p){m+=q*p.precio;u+=q;}
+      for(const[pid,q] of Object.entries(s[k][cat])){
+        const p=(products[cat]||[]).find(x=>x.id===pid);
+        if(p){m+=q*p.precio;u+=q;}
       }
     }
-    // Estado del turno
     let estado;
     if(cerrado) estado='cerrado';
     else if(esHoy && ti > turnoActualIdx) estado='no-iniciado';
     else if(esHoy && ti === turnoActualIdx) estado='abierto';
-    else if(!esHoy && diffFk>0) estado='no-iniciado'; // día futuro
+    else if(diffFk > 0) estado='no-iniciado';
     else estado='abierto';
     return{nom,m,u,cerrado,ci,num,k,estado};
   });
-  // Calcular día anterior y siguiente
-  const FECHA_INICIO = '2026-06-13';
-  const dayObj = new Date(fk+'T12:00:00');
-  const startObj2 = new Date(2026,5,13);
-  const diffFk = Math.round((dayObj-startObj2)/86400000);
+
+  // Totales del día (solo turnos cerrados)
+  const rows = (products[cat]||[]).filter(p=>p.nombre).map(p=>{
+    const v = getSalesDayClosed(cat,p.id,fk);
+    return{...p,ventas:v,monto:v*p.precio,sf:p.stockInicial-v};
+  });
+  const totU = rows.reduce((a,r)=>a+r.ventas,0);
+  const totM = rows.reduce((a,r)=>a+r.monto,0);
+  const totP = rows.filter(r=>r.ventas>0).length;
+
+  // Navegador de fechas
   const prev = new Date(dayObj); prev.setDate(prev.getDate()-1);
   const next = new Date(dayObj); next.setDate(next.getDate()+1);
   const prevFk = prev.getFullYear()+'-'+String(prev.getMonth()+1).padStart(2,'0')+'-'+String(prev.getDate()).padStart(2,'0');
   const nextFk = next.getFullYear()+'-'+String(next.getMonth()+1).padStart(2,'0')+'-'+String(next.getDate()).padStart(2,'0');
-  const esHoy = fk === getFechaHoyAR();
-  const esPrimerDia = fk <= FECHA_INICIO;
-  // Turno actual de Argentina para saber qué turnos "no iniciaron" aún
-  const ahoraAR2 = new Date(new Date().toLocaleString('en-US',{timeZone:'America/Argentina/Buenos_Aires'}));
-  const horaAR = ahoraAR2.getHours();
-  const turnoActualIdx = horaAR>=6&&horaAR<14?0:horaAR>=14&&horaAR<22?1:2;
 
   return`
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
@@ -695,8 +699,8 @@ function renderResumen(){
     ${!esHoy?`<button class="btn btn-sm btn-primary" onclick="admFechaKey=getFechaHoyAR();renderAdmContent()"><i class="ti ti-calendar"></i> Hoy</button>`:'<span style="font-size:12px;color:#27500A;font-weight:500">● Hoy</span>'}
   </div>
   <div class="metrics">
-    <div class="metric"><div class="metric-val">${totU}</div><div class="metric-lbl">Unidades vendidas hoy</div></div>
-    <div class="metric"><div class="metric-val">$${totM.toLocaleString('es-AR')}</div><div class="metric-lbl">Monto cobrado hoy</div></div>
+    <div class="metric"><div class="metric-val">${totU}</div><div class="metric-lbl">Unidades vendidas (turnos cerrados)</div></div>
+    <div class="metric"><div class="metric-val">$${totM.toLocaleString('es-AR')}</div><div class="metric-lbl">Monto cobrado (turnos cerrados)</div></div>
     <div class="metric"><div class="metric-val">${totP}</div><div class="metric-lbl">Productos movidos</div></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem">
@@ -715,7 +719,7 @@ function renderResumen(){
         : t.estado==='abierto'
           ? `<span style="font-size:13px;color:#f59e0b;font-weight:500">en curso</span>`
           : `<span style="font-size:13px;color:#d1d5db">—</span>`;
-      return `<div class="metric" style="position:relative">
+      return `<div class="metric">
         <div style="margin-bottom:5px;display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap">
           <span class="badge badge-${t.nom}">${t.nom}</span>
           ${t.num?`<span style="font-size:10px;color:#9ca3af">${planillaStr(t.num)}</span>`:''}
@@ -745,31 +749,7 @@ function renderResumen(){
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
-// Fecha actual en Argentina como "YYYY-MM-DD"
-function getFechaHoyAR(){
-  // Obtener partes de fecha directamente en timezone AR
-  const now = new Date();
-  const partes = new Intl.DateTimeFormat('en-CA', {
-    timeZone: 'America/Argentina/Buenos_Aires',
-    year: 'numeric', month: '2-digit', day: '2-digit',
-    hour: '2-digit', minute: '2-digit', hour12: false
-  }).formatToParts(now);
-  const get = t => partes.find(p=>p.type===t)?.value||'0';
-  const fk = `${get('year')}-${get('month')}-${get('day')}`;
-  const hora = parseInt(get('hour'));
-  // Si es antes de las 6am, el turno pertenece al día anterior
-  if(hora < 6){
-    const d = new Date(fk+'T12:00:00');
-    d.setDate(d.getDate()-1);
-    return d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
-  }
-  return fk;
-}
 
-function fechaKeyToDisplay(fk){
-  const [y,m,d] = fk.split('-');
-  return `${parseInt(d)}/${parseInt(m)}/${y}`;
-}
 
 function getTurnoNombreFromNum(num){
   // Derivar turno (mañana/tarde/noche) desde el número de planilla
