@@ -222,7 +222,7 @@ const USERS = [
   {id:'agus',    name:'Agus',    role:'operador', pass:'agus123',   refuerzo:true},
 ];
 
-let currentUser=null,currentCat=0,admSection='resumen',admCat=0;
+let currentUser=null,currentCat=0,admSection='resumen',admCat=0,admFechaKey=null;
 let products={'Lubricantes':[],'Minimercado':[],'Gas + Hielo':[]};
 let sheetsLoaded=false,sheetsLoading=false;
 
@@ -592,14 +592,14 @@ function ejecutarCierre(u,m){
 // Suma ventas solo de turnos cerrados del día
 function getSalesDayClosed(cat,id,fk){
   const s=getSales();
-  const c=getCierres();
-  return dayKeys(fk||T.fechaKey).reduce((a,k)=>{
+  return dayKeys(fk||getFechaHoyAR()).reduce((a,k)=>{
     const num=parseInt(k.replace('T',''));
-    if(!isCerrado(num)) return a; // solo turnos cerrados
+    if(!isCerrado(num)) return a;
     return a+((s[k]?.[cat]?.[id])||0);
   },0);
 }
 function initAdm(){
+  admFechaKey = getFechaHoyAR(); // siempre arranca mostrando hoy
   document.getElementById('adm-badge-turno').textContent='Turno '+T.nombre;
   document.getElementById('adm-badge-turno').className='badge badge-'+T.nombre;
   document.getElementById('adm-fecha').textContent=T.fecha;
@@ -622,22 +622,23 @@ function renderAdmContent(){
   else el.innerHTML=renderUsuarios();
 }
 function renderResumen(){
+  if(!admFechaKey) admFechaKey = getFechaHoyAR();
+  const fk = admFechaKey;
   const cat=CATS[admCat];
   // Solo suma ventas de turnos YA cerrados
   const rows=(products[cat]||[]).filter(p=>p.nombre).map(p=>{
-    const v=getSalesDayClosed(cat,p.id,T.fechaKey);
+    const v=getSalesDayClosed(cat,p.id,fk);
     return{...p,ventas:v,monto:v*p.precio,sf:p.stockInicial-v};
   });
   const totU=rows.reduce((a,r)=>a+r.ventas,0);
   const totM=rows.reduce((a,r)=>a+r.monto,0);
   const totP=rows.filter(r=>r.ventas>0).length;
-  const keys=dayKeys(T.fechaKey);
+  const keys=dayKeys(fk);
   const porTurno=TURNOS.map((nom,i)=>{
     const k=keys[i]||'';const s=getSales();let m=0,u=0;
     const num=k?parseInt(k.replace('T','')):null;
     const cerrado=num?isCerrado(num):false;
     const ci=num?getCierres()[tKey(num)]:null;
-    // Usar totales del cierre si existe (más confiable)
     if(ci){m=ci.totalM;u=ci.totalU;}
     else if(s[k]?.[cat]){
       for(const[pid,q]of Object.entries(s[k][cat])){
@@ -646,7 +647,23 @@ function renderResumen(){
     }
     return{nom,m,u,cerrado,ci,num,k};
   });
+  // Calcular día anterior y siguiente
+  const dayObj = new Date(fk+'T12:00:00');
+  const prev = new Date(dayObj); prev.setDate(prev.getDate()-1);
+  const next = new Date(dayObj); next.setDate(next.getDate()+1);
+  const prevFk = prev.getFullYear()+'-'+String(prev.getMonth()+1).padStart(2,'0')+'-'+String(prev.getDate()).padStart(2,'0');
+  const nextFk = next.getFullYear()+'-'+String(next.getMonth()+1).padStart(2,'0')+'-'+String(next.getDate()).padStart(2,'0');
+  const esHoy = fk === getFechaHoyAR();
+
   return`
+  <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
+    <div style="display:flex;align-items:center;gap:8px">
+      <button class="btn btn-sm" onclick="admFechaKey='${prevFk}';renderAdmContent()"><i class="ti ti-chevron-left"></i></button>
+      <span style="font-size:15px;font-weight:600">${fechaKeyToDisplay(fk)}</span>
+      <button class="btn btn-sm" onclick="admFechaKey='${nextFk}';renderAdmContent()" ${esHoy?'disabled':''}><i class="ti ti-chevron-right"></i></button>
+    </div>
+    ${!esHoy?`<button class="btn btn-sm btn-primary" onclick="admFechaKey=getFechaHoyAR();renderAdmContent()"><i class="ti ti-calendar"></i> Hoy</button>`:'<span style="font-size:12px;color:#27500A;font-weight:500">● Hoy</span>'}
+  </div>
   <div class="metrics">
     <div class="metric"><div class="metric-val">${totU}</div><div class="metric-lbl">Unidades vendidas hoy</div></div>
     <div class="metric"><div class="metric-val">$${totM.toLocaleString('es-AR')}</div><div class="metric-lbl">Monto cobrado hoy</div></div>
@@ -686,6 +703,20 @@ function renderResumen(){
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
+// Fecha actual en Argentina como "YYYY-MM-DD"
+function getFechaHoyAR(){
+  const now = new Date();
+  const ar = new Date(now.toLocaleString('en-US', {timeZone:'America/Argentina/Buenos_Aires'}));
+  // Si es antes de las 6am, pertenece al día anterior
+  if(ar.getHours() < 6) ar.setDate(ar.getDate()-1);
+  return ar.getFullYear()+'-'+String(ar.getMonth()+1).padStart(2,'0')+'-'+String(ar.getDate()).padStart(2,'0');
+}
+
+function fechaKeyToDisplay(fk){
+  const [y,m,d] = fk.split('-');
+  return `${parseInt(d)}/${parseInt(m)}/${y}`;
+}
+
 function getTurnoNombreFromNum(num){
   // Derivar turno (mañana/tarde/noche) desde el número de planilla
   const rel = (num - PLANILLA_INI);
