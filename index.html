@@ -579,7 +579,7 @@ function confirmarCierre(){
 
 function ejecutarCierre(u,m){
   const ahora=new Date();
-  const hora=ahora.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  const hora=ahora.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit',hour12:false,timeZone:'America/Argentina/Buenos_Aires'});
   const c=getCierres();
   c[tKey(T.num)]={user:currentUser.name,hora,fecha:T.fecha,planilla:T.num,totalU:u,totalM:m,turnoNombre:T.nombre};
   saveCierres(c);
@@ -686,6 +686,19 @@ function renderResumen(){
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
+function getTurnoNombreFromNum(num){
+  // Derivar turno (mañana/tarde/noche) desde el número de planilla
+  const rel = (num - PLANILLA_INI);
+  const t0 = 3 - START_TI; // turnos en dia 0
+  let ti;
+  if(rel < t0){
+    ti = START_TI + rel;
+  } else {
+    ti = (rel - t0) % 3;
+  }
+  return TURNOS[Math.max(0,Math.min(2,ti))];
+}
+
 function renderTurnos(detailKey){
   const c=getCierres();
   const items=Object.entries(c).sort((a,b)=>b[1].planilla-a[1].planilla);
@@ -699,7 +712,7 @@ function renderTurnos(detailKey){
 
   for(const [k,v] of items){
     const isOpen = detailKey===k;
-    const turnoNombre = v.turnoNombre || '';
+    const turnoNombre = v.turnoNombre || getTurnoNombreFromNum(v.planilla);
     html+=`<tr style="cursor:pointer" onclick="showAdm('turnos-${k}',null)" class="${isOpen?'selected-row':''}">
       <td><strong>${planillaStr(v.planilla)}</strong></td>
       <td>${v.fecha}</td>
