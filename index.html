@@ -617,7 +617,13 @@ function renderResumen(){
       estado='abierto';
       estadoHtml=`<span style="font-size:10px;color:#f59e0b;font-weight:600">● abierto</span>`;
       valorHtml=`<div style="font-size:13px;color:#f59e0b;font-weight:500;margin:4px 0">en curso</div>`;
-    }else if(!esHoy||(esHoy&&p.ti>tiActual)){
+    }else if(diff>0){
+      // Día futuro: todos no iniciados
+      estado='pendiente';
+      estadoHtml=`<span style="font-size:10px;color:#9ca3af">○ no iniciado</span>`;
+      valorHtml=`<div style="font-size:13px;color:#d1d5db;margin:4px 0">—</div>`;
+    }else if(esHoy&&p.ti>tiActual){
+      // Turno de hoy que aún no llegó
       estado='pendiente';
       estadoHtml=`<span style="font-size:10px;color:#9ca3af">○ no iniciado</span>`;
       valorHtml=`<div style="font-size:13px;color:#d1d5db;margin:4px 0">—</div>`;
