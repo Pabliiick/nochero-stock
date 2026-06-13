@@ -319,7 +319,10 @@ function setSale(cat,id,qty){
 document.addEventListener('DOMContentLoaded',()=>{
   const sel=document.getElementById('sel-user');
   USERS.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name+(u.role==='admin'?' (Admin)':'');sel.appendChild(o);});
-  document.getElementById('login-turno-info').textContent=`Turno ${T.nombre} · ${T.fecha} · Planilla ${planillaStr(T.num)}`;
+  // Hora actual en Argentina (UTC-3)
+  const ahoraAR = new Date().toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit', timeZone:'America/Argentina/Buenos_Aires'});
+  document.getElementById('login-turno-info').innerHTML =
+    `<strong>Actualmente:</strong> Turno <strong>${T.nombre}</strong> · ${T.fecha} · Planilla <strong>${planillaStr(T.num)}</strong> · ${ahoraAR} hs`;
 });
 
 function doLogin(){
