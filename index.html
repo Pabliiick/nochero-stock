@@ -85,6 +85,7 @@ td.col-total{background:#f0fce8;text-align:center;padding:6px 8px}
 .edit-hint{font-size:10px;color:#6b7280;margin-top:2px}
 
 .stock-out{color:#A32D2D;font-weight:600}
+.selected-row{background:#f0fce8}
 
 /* BARRA DE CIERRE FIJA ABAJO */
 .cierre-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #3B6D11;padding:12px 1rem;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:50;flex-wrap:wrap}
@@ -172,7 +173,7 @@ td.col-total{background:#f0fce8;text-align:center;padding:6px 8px}
   <div id="cierre-bar" class="cierre-bar">
     <div id="cierre-info" class="cierre-info"></div>
     <button id="cierre-btn" class="btn btn-green" onclick="confirmarCierre()">
-      <i class="ti ti-lock"></i> Cerrar turno y enviar a Franco
+      <i class="ti ti-lock"></i> Cerrar e informar turno
     </button>
   </div>
 </div>
@@ -538,14 +539,24 @@ function ejecutarCierre(u,m){
   const ahora=new Date();
   const hora=ahora.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
   const c=getCierres();
-  c[tKey(T.num)]={user:currentUser.name,hora,fecha:T.fecha,planilla:T.num,totalU:u,totalM:m};
+  c[tKey(T.num)]={user:currentUser.name,hora,fecha:T.fecha,planilla:T.num,totalU:u,totalM:m,turnoNombre:T.nombre};
   saveCierres(c);
   document.getElementById('modal').innerHTML='';
-  toast('✓ Turno cerrado y enviado a Franco','success');
+  toast('✓ Turno cerrado e informado','success');
   updateCierreBar();renderOpTable();
 }
 
 // ADMIN
+// Suma ventas solo de turnos cerrados del día
+function getSalesDayClosed(cat,id,fk){
+  const s=getSales();
+  const c=getCierres();
+  return dayKeys(fk||T.fechaKey).reduce((a,k)=>{
+    const num=parseInt(k.replace('T',''));
+    if(!isCerrado(num)) return a; // solo turnos cerrados
+    return a+((s[k]?.[cat]?.[id])||0);
+  },0);
+}
 function initAdm(){
   document.getElementById('adm-badge-turno').textContent='Turno '+T.nombre;
   document.getElementById('adm-badge-turno').className='badge badge-'+T.nombre;
@@ -562,14 +573,17 @@ function showAdm(name,btn){
 function renderAdmContent(){
   const el=document.getElementById('adm-content');if(!el)return;
   if(admSection==='resumen')el.innerHTML=renderResumen();
-  else if(admSection==='turnos')el.innerHTML=renderTurnos();
   else if(admSection==='stock')el.innerHTML=renderStock();
+  else if(admSection==='usuarios')el.innerHTML=renderUsuarios();
+  else if(admSection==='turnos')el.innerHTML=renderTurnos(null);
+  else if(admSection.startsWith('turnos-'))el.innerHTML=renderTurnos(admSection.replace('turnos-',''));
   else el.innerHTML=renderUsuarios();
 }
 function renderResumen(){
   const cat=CATS[admCat];
+  // Solo suma ventas de turnos YA cerrados
   const rows=(products[cat]||[]).filter(p=>p.nombre).map(p=>{
-    const v=getSalesDay(cat,p.id,T.fechaKey);
+    const v=getSalesDayClosed(cat,p.id,T.fechaKey);
     return{...p,ventas:v,monto:v*p.precio,sf:p.stockInicial-v};
   });
   const totU=rows.reduce((a,r)=>a+r.ventas,0);
@@ -611,21 +625,78 @@ function renderResumen(){
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
-function renderTurnos(){
+function renderTurnos(detailKey){
   const c=getCierres();
   const items=Object.entries(c).sort((a,b)=>b[1].planilla-a[1].planilla);
   if(!items.length)return`<div class="alert alert-info"><i class="ti ti-info-circle"></i> Aún no hay turnos cerrados.</div>`;
-  return`<div class="card">
-    <div class="section-title"><i class="ti ti-clock"></i> Turnos cerrados</div>
+
+  let html=`<div class="card">
+    <div class="section-title"><i class="ti ti-clock"></i> Turnos cerrados <span style="font-size:12px;font-weight:400;color:#6b7280">— hacé clic en una fila para ver el detalle</span></div>
     <div class="table-wrap"><table>
-      <thead><tr><th>Planilla</th><th>Fecha</th><th>Cerrado por</th><th>Hora cierre</th><th>Uds vendidas</th><th>Total $</th></tr></thead>
-      <tbody>${items.map(([k,v])=>`<tr>
-        <td><strong>${planillaStr(v.planilla)}</strong></td>
-        <td>${v.fecha}</td><td>${v.user}</td><td>${v.hora}</td>
-        <td>${v.totalU}</td><td>$${v.totalM.toLocaleString('es-AR')}</td>
-      </tr>`).join('')}
-      </tbody></table>
-  </div></div>`;
+      <thead><tr><th>Planilla</th><th>Fecha</th><th>Turno</th><th>Cerrado por</th><th>Hora</th><th>Uds</th><th>Total $</th><th></th></tr></thead>
+      <tbody>`;
+
+  for(const [k,v] of items){
+    const isOpen = detailKey===k;
+    const turnoNombre = v.turnoNombre || '';
+    html+=`<tr style="cursor:pointer" onclick="showAdm('turnos-${k}',null)" class="${isOpen?'selected-row':''}">
+      <td><strong>${planillaStr(v.planilla)}</strong></td>
+      <td>${v.fecha}</td>
+      <td>${turnoNombre?`<span class="badge badge-${turnoNombre}">${turnoNombre}</span>`:''}</td>
+      <td>${v.user}</td><td>${v.hora}</td>
+      <td>${v.totalU}</td>
+      <td>$${v.totalM.toLocaleString('es-AR')}</td>
+      <td><i class="ti ti-chevron-${isOpen?'up':'down'}" style="color:#6b7280;font-size:14px"></i></td>
+    </tr>`;
+    if(isOpen){
+      html+=`<tr><td colspan="8" style="padding:0;background:#f9fafb">
+        <div style="padding:1rem">${renderTurnoDetalle(k,v)}</div>
+      </td></tr>`;
+    }
+  }
+  html+=`</tbody></table></div></div>`;
+  return html;
+}
+
+function renderTurnoDetalle(tKey, cierre){
+  const s=getSales();
+  const data=s[tKey]||{};
+  let html=`<div style="font-size:13px;font-weight:600;margin-bottom:10px;color:#1a1a1a">
+    Detalle de ventas — Planilla ${planillaStr(cierre.planilla)} · Turno ${cierre.turnoNombre||''} · ${cierre.fecha}
+  </div>`;
+
+  let hayVentas=false;
+  for(const cat of CATS){
+    if(!data[cat]) continue;
+    const prods=Object.entries(data[cat]).filter(([,q])=>q>0);
+    if(!prods.length) continue;
+    hayVentas=true;
+    html+=`<div style="font-size:12px;font-weight:600;color:#6b7280;margin:8px 0 4px;text-transform:uppercase;letter-spacing:.5px">${cat}</div>`;
+    html+=`<table style="width:100%;font-size:13px;border-collapse:collapse">
+      <thead><tr>
+        <th style="text-align:left;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb">Producto</th>
+        <th style="text-align:center;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb">Cantidad</th>
+        <th style="text-align:right;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb">Precio unit.</th>
+        <th style="text-align:right;padding:5px 8px;color:#6b7280;font-weight:500;border-bottom:1px solid #e5e7eb">Subtotal</th>
+      </tr></thead><tbody>`;
+    for(const [pid,qty] of prods){
+      const p=(products[cat]||[]).find(x=>x.id===pid);
+      const nombre=p?p.nombre:pid;
+      const precio=p?p.precio:0;
+      html+=`<tr>
+        <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6">${nombre}</td>
+        <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:center"><span class="badge badge-ok">${qty}</span></td>
+        <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:right;color:#6b7280">$${precio.toLocaleString('es-AR')}</td>
+        <td style="padding:5px 8px;border-bottom:1px solid #f3f4f6;text-align:right;font-weight:600">$${(qty*precio).toLocaleString('es-AR')}</td>
+      </tr>`;
+    }
+    html+=`</tbody></table>`;
+  }
+  if(!hayVentas) html+=`<div style="color:#9ca3af;font-size:13px">Sin ventas registradas en este turno.</div>`;
+  html+=`<div style="margin-top:12px;text-align:right;font-size:14px;font-weight:700;color:#1a1a1a">
+    Total: $${cierre.totalM.toLocaleString('es-AR')} · ${cierre.totalU} unidades
+  </div>`;
+  return html;
 }
 function renderStock(){
   const total=Object.values(products).reduce((a,v)=>a+v.length,0);
