@@ -230,6 +230,8 @@ function getSales(){return JSON.parse(localStorage.getItem('nochero_v4')||'{}')}
 function saveSales(s){localStorage.setItem('nochero_v4',JSON.stringify(s))}
 function getCierres(){return JSON.parse(localStorage.getItem('nochero_cierres')||'{}')}
 function saveCierres(c){localStorage.setItem('nochero_cierres',JSON.stringify(c))}
+function getPlanillaOffset(){return parseInt(localStorage.getItem('nochero_planilla_offset')||'0')}
+function savePlanillaOffset(n){localStorage.setItem('nochero_planilla_offset',String(n))}
 function planillaStr(n){return '#'+String(n).padStart(5,'0')}
 
 function getTurno(d){
@@ -244,6 +246,7 @@ function getTurno(d){
   if(diff===0){num=PLANILLA_INI+(ti-START_TI);if(num<PLANILLA_INI)num=PLANILLA_INI;}
   else{const t0=3-START_TI;num=PLANILLA_INI+t0+(diff-1)*3+ti;}
   const fk=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
+  num += getPlanillaOffset();
   return{num,nombre:TURNOS[ti],idx:ti,fecha:day.toLocaleDateString('es-AR'),fechaKey:fk,diff,ti};
 }
 const T=getTurno();
@@ -899,6 +902,8 @@ function confirmarBorrar(k){
 
 function renderStock(){
   const total=Object.values(products).reduce((a,v)=>a+v.length,0);
+  const planillaActual=T.num;
+  const offsetActual=getPlanillaOffset();
   return`<div class="card">
     <div class="section-title"><i class="ti ti-refresh"></i> Recargar desde Google Sheets</div>
     <p style="font-size:13px;color:#6b7280;margin-bottom:1rem">Trae precios y stock inicial actualizados.</p>
@@ -906,9 +911,43 @@ function renderStock(){
     ${sheetsLoaded?`<div class="alert alert-success" style="margin-top:1rem"><i class="ti ti-check"></i> ${total} productos cargados.</div>`:''}
   </div>
   <div class="card">
+    <div class="section-title"><i class="ti ti-hash"></i> Actualizar número de planilla</div>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:12px">
+      Planilla actual del sistema: <strong>${planillaStr(planillaActual)}</strong>
+      ${offsetActual!==0?`<span style="font-size:12px;color:#185FA5"> (ajuste aplicado: ${offsetActual>0?'+':''}${offsetActual})</span>`:''}
+    </p>
+    <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap">
+      <div>
+        <label style="margin-top:0;margin-bottom:4px">Establecer planilla correcta para el turno actual:</label>
+        <input type="number" id="inp-planilla-nueva" value="${planillaActual}" style="width:140px;margin-top:0">
+      </div>
+      <button class="btn btn-primary" style="margin-top:18px" onclick="actualizarPlanilla()">
+        <i class="ti ti-check"></i> Aplicar
+      </button>
+      ${offsetActual!==0?`<button class="btn" style="margin-top:18px;color:#A32D2D;border-color:#A32D2D" onclick="resetPlanilla()">
+        <i class="ti ti-refresh"></i> Resetear
+      </button>`:''}
+    </div>
+    <p style="font-size:12px;color:#9ca3af;margin-top:10px"><i class="ti ti-info-circle"></i> Esto ajusta el número visible sin borrar datos.</p>
+  </div>
+  <div class="card">
     <div class="section-title"><i class="ti ti-external-link"></i> Editar en Google Sheets</div>
     <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit" target="_blank" class="btn"><i class="ti ti-table"></i> Abrir Google Sheets</a>
   </div>`;
+}
+
+function actualizarPlanilla(){
+  const nueva=parseInt(document.getElementById('inp-planilla-nueva')?.value)||T.num;
+  const offset=nueva-T.num;
+  savePlanillaOffset(offset);
+  toast(`✓ Planilla actualizada a ${planillaStr(nueva)}`,'success');
+  setTimeout(()=>location.reload(),1200);
+}
+
+function resetPlanilla(){
+  savePlanillaOffset(0);
+  toast('Número de planilla reseteado','success');
+  setTimeout(()=>location.reload(),1200);
 }
 function renderUsuarios(){
   return`<div class="card">
