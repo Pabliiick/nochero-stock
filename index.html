@@ -28,7 +28,6 @@ input:focus,select:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,16
 .badge-admin{background:#EAF3DE;color:#27500A}
 .badge-operador{background:#FEF3C7;color:#92400E}
 .badge-ok{background:#EAF3DE;color:#27500A}
-.badge-low{background:#FAEEDA;color:#633806}
 .badge-out{background:#FCEBEB;color:#A32D2D}
 .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
 .alert-info{background:#E6F1FB;color:#0C447C}
@@ -57,20 +56,17 @@ tr:last-child td{border-bottom:none}
 .search-row input{flex:1;margin:0}
 .turno-bar{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:6px}
 
-/* VENTA COLUMN - destacada */
 th.col-venta{background:#185FA5;color:#fff;text-align:center;font-weight:700;font-size:13px}
 td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
 .venta-input-wrap{display:flex;align-items:center;justify-content:center;gap:6px}
 .venta-input{width:64px;padding:7px 6px;font-size:15px;font-weight:600;text-align:center;border:2px solid #185FA5;border-radius:8px;background:#fff;color:#185FA5;outline:none}
 .venta-input:focus{box-shadow:0 0 0 3px rgba(24,95,165,.2);border-color:#0C447C}
 .venta-input:disabled{background:#f3f4f6;border-color:#d1d5db;color:#9ca3af}
+.venta-input.over{border-color:#A32D2D;color:#A32D2D;box-shadow:0 0 0 3px rgba(163,45,45,.15)}
 .btn-registrar{padding:6px 10px;background:#185FA5;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;transition:background .15s}
 .btn-registrar:hover{background:#0C447C}
 .btn-registrar:disabled{background:#d1d5db;cursor:not-allowed}
-
-/* stock colors */
-.stock-ok{color:#27500A;font-weight:500}
-.stock-low{color:#633806;font-weight:600}
+.stock-ok{color:#1a1a1a}
 .stock-out{color:#A32D2D;font-weight:600}
 
 #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:10px 22px;border-radius:999px;font-size:13px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
@@ -125,13 +121,10 @@ td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
         <button class="btn btn-sm" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
       </div>
     </div>
-
-    <!-- instrucción clara -->
     <div class="alert alert-info" style="margin-bottom:1rem">
       <i class="ti ti-info-circle"></i>
       <span>Ingresá la cantidad vendida en la columna azul <strong>"Cantidad vendida"</strong> y presioná <strong>✓</strong> para confirmar.</span>
     </div>
-
     <div id="op-alert"></div>
     <div class="tab-bar" id="op-tabs"></div>
     <div class="search-row">
@@ -169,8 +162,14 @@ td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
 
 <script>
 const SHEET_ID = '1kRZBJo5l51FuVvEsLR8Z_hJV-X2AKHMsW-L-N0NzNBc';
-const START_DATE = new Date(2025,5,15,6,0,0);
+
+// Turno 001 = tarde del 13/06/2025
+// Tarde = índice 1 (0=mañana, 1=tarde, 2=noche)
+// Arrancamos desde 13/06/2025 turno TARDE = turno #1
+const START_DATE  = new Date(2025, 5, 13); // 13 jun 2025
+const START_TURNO = 1; // 0=mañana, 1=tarde, 2=noche — arranca en tarde
 const TURNOS = ['mañana','tarde','noche'];
+const TURNO_NUM_OFFSET = 1; // el primer turno es #001
 const CATS = ['Lubricantes','Minimercado','Gas + Hielo'];
 
 const USERS = [
@@ -192,18 +191,38 @@ function getSales(){return JSON.parse(localStorage.getItem('nochero_v3')||'{}')}
 function saveSales(s){localStorage.setItem('nochero_v3',JSON.stringify(s))}
 
 function getTurno(d){
-  d=d||new Date();
-  const h=d.getHours();
-  let ti= h>=6&&h<14?0:h>=14&&h<22?1:2;
-  let day=new Date(d.getFullYear(),d.getMonth(),d.getDate());
-  if(h<6){day=new Date(day);day.setDate(day.getDate()-1);ti=2;}
-  const start=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
-  const diff=Math.round((day-start)/86400000);
-  const num=Math.max(1,diff*3+ti+1);
-  const fk=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
-  return{num,nombre:TURNOS[ti],idx:ti,fecha:day.toLocaleDateString('es-AR'),fechaKey:fk,diff};
+  d = d || new Date();
+  const h = d.getHours();
+  // índice de turno según hora
+  let ti = h >= 6 && h < 14 ? 0 : h >= 14 && h < 22 ? 1 : 2;
+  // si es noche antes de las 6, pertenece al día anterior
+  let day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
+  if(h < 6){ day = new Date(day); day.setDate(day.getDate()-1); ti = 2; }
+
+  const start = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+  const diffDays = Math.round((day - start) / 86400000);
+
+  // turnos transcurridos desde el inicio (tarde del día 0 = turno 1)
+  // día 0: solo tarde(1) y noche(2) → índices 1,2 disponibles
+  // turno num = turnos anteriores al dia 0 en ese dia (START_TURNO) + turnos completos de dias anteriores + turno actual del dia
+  let num;
+  if(diffDays === 0){
+    // mismo día de inicio
+    num = (ti - START_TURNO) + 1;
+    if(num < 1) num = 1; // no hubo turno antes del inicio
+  } else {
+    // turnos del día 0 desde START_TURNO hasta fin = (3 - START_TURNO)
+    const turnosDia0 = 3 - START_TURNO;
+    // días completos intermedios
+    const diasCompletos = diffDays - 1;
+    num = turnosDia0 + diasCompletos * 3 + ti + 1;
+  }
+
+  const fk = `${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
+  return { num, nombre: TURNOS[ti], idx: ti, fecha: day.toLocaleDateString('es-AR'), fechaKey: fk, diffDays, ti };
 }
-const T=getTurno();
+
+const T = getTurno();
 
 function parsePrecio(s){return parseInt((s||'').replace(/[$.\s]/g,'').replace(',',''))||0}
 function parseNum(s){return parseInt(s)||0}
@@ -238,21 +257,42 @@ async function loadAllSheets(){
     products={'Lubricantes':a,'Minimercado':b,'Gas + Hielo':c};
     sheetsLoaded=true;
     toast(`✓ ${a.length+b.length+c.length} productos cargados`,'success');
-    renderOpTable();if(admSection==='resumen'||admSection==='stock')renderAdmContent();
+    renderOpTable();
+    if(admSection==='resumen'||admSection==='stock') renderAdmContent();
   }catch(e){toast('Error al cargar. ¿El Sheets es público?','error');}
   sheetsLoading=false;
 }
 
 function turnoKey(n){return`T${n}`}
+
 function dayKeys(fk){
-  const day=new Date(fk+'T12:00:00');
-  const start=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
-  const diff=Math.round((day-start)/86400000);
-  return[0,1,2].map((_,i)=>`T${diff*3+i+1}`);
+  // Para una fecha dada, devuelve las claves de los 3 turnos del día
+  const day = new Date(fk+'T12:00:00');
+  const start = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
+  const diffDays = Math.round((day - start) / 86400000);
+  const keys = [];
+  for(let i=0; i<3; i++){
+    let num;
+    if(diffDays === 0){
+      // solo los turnos a partir de START_TURNO
+      const ti = START_TURNO + i;
+      if(ti > 2) break;
+      num = i + 1;
+    } else {
+      const turnosDia0 = 3 - START_TURNO;
+      num = turnosDia0 + (diffDays-1)*3 + i + 1;
+    }
+    keys.push(`T${num}`);
+  }
+  return keys;
 }
-function getSalesTorno(cat,id){const s=getSales();return(s[turnoKey(T.num)]?.[cat]?.[id])||0}
-function getSalesDay(cat,id,fk){const s=getSales();return dayKeys(fk||T.fechaKey).reduce((a,k)=>a+((s[k]?.[cat]?.[id])||0),0)}
-function getStock(p){return p.stockInicial-getSalesDay(p.categoria,p.id)}
+
+function getSalesTurno(cat,id){const s=getSales();return(s[turnoKey(T.num)]?.[cat]?.[id])||0}
+function getSalesDay(cat,id,fk){
+  const s=getSales();
+  return dayKeys(fk||T.fechaKey).reduce((a,k)=>a+((s[k]?.[cat]?.[id])||0),0);
+}
+function getStock(p){return p.stockInicial - getSalesDay(p.categoria, p.id)}
 function recordSale(cat,id,qty){
   const s=getSales(),k=turnoKey(T.num);
   if(!s[k])s[k]={};if(!s[k][cat])s[k][cat]={};
@@ -263,7 +303,8 @@ function recordSale(cat,id,qty){
 document.addEventListener('DOMContentLoaded',()=>{
   const sel=document.getElementById('sel-user');
   USERS.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name+(u.role==='admin'?' (Admin)':'');sel.appendChild(o);});
-  document.getElementById('login-turno-info').textContent=`Turno actual: ${T.nombre} · ${T.fecha} · #${T.num}`;
+  const numStr = String(T.num).padStart(3,'0');
+  document.getElementById('login-turno-info').textContent=`Turno ${T.nombre} · ${T.fecha} · Planilla #${numStr}`;
 });
 
 function doLogin(){
@@ -275,42 +316,42 @@ function doLogin(){
   document.getElementById('login-msg').innerHTML='';
   document.getElementById('inp-pass').value='';
   showScreen(user.role==='admin'?'admin':'operador');
-  if(!sheetsLoaded)loadAllSheets();
+  if(!sheetsLoaded) loadAllSheets();
 }
 function logout(){currentUser=null;currentCat=0;showScreen('login');}
 
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
-  if(name==='operador')initOp();
-  if(name==='admin')initAdm();
+  if(name==='operador') initOp();
+  if(name==='admin') initAdm();
 }
 
 // OPERADOR
 function initOp(){
+  const numStr = String(T.num).padStart(3,'0');
   document.getElementById('op-badge-turno').textContent='Turno '+T.nombre;
   document.getElementById('op-badge-turno').className='badge badge-'+T.nombre;
   document.getElementById('op-fecha').textContent=T.fecha;
-  document.getElementById('op-num').textContent='#'+T.num;
+  document.getElementById('op-num').textContent='Planilla #'+numStr;
   document.getElementById('op-user-badge').textContent=currentUser.name;
-  buildOpTabs();renderOpTable();
+  buildOpTabs(); renderOpTable();
 }
 function buildOpTabs(){
   document.getElementById('op-tabs').innerHTML=CATS.map((c,i)=>`<button class="tab ${i===currentCat?'active':''}" onclick="currentCat=${i};buildOpTabs();renderOpTable()">${c}</button>`).join('');
 }
+
 function renderOpTable(){
   const cat=CATS[currentCat];
   const search=(document.getElementById('op-search')?.value||'').toLowerCase();
   const prods=(products[cat]||[]).filter(p=>p.nombre&&(!search||p.nombre.toLowerCase().includes(search)));
   const el=document.getElementById('op-table');
-
   if(!sheetsLoaded){
     el.innerHTML='<div class="alert alert-warning"><i class="ti ti-loader"></i> Cargando productos... un momento.</div>';return;
   }
   if(!prods.length){
     el.innerHTML='<div class="alert alert-info"><i class="ti ti-info-circle"></i> No se encontraron productos.</div>';return;
   }
-
   let html=`<div class="table-wrap"><table>
     <thead><tr>
       <th style="min-width:180px">Producto</th>
@@ -319,22 +360,28 @@ function renderOpTable(){
       <th class="col-venta">✏ Cantidad vendida</th>
       <th>Vendido este turno</th>
     </tr></thead><tbody>`;
-
   for(const p of prods){
     const sf=getStock(p);
-    const ts=getSalesTorno(cat,p.id);
-    const out=sf<=0, low=sf>0&&sf<=3;
-    const stockClass=out?'stock-out':low?'stock-low':'stock-ok';
+    const ts=getSalesTurno(cat,p.id);
+    const out=sf<=0;
+    const pid=p.id.replace(/'/g,"\\'");
+    const pnombre=p.nombre.replace(/'/g,"\\'").replace(/"/g,'\\"');
     html+=`<tr>
-      <td><strong>${p.nombre}</strong>${out?` <span class="badge badge-out">Sin stock</span>`:low?` <span class="badge badge-low">Bajo</span>`:''}</td>
+      <td><strong>${p.nombre}</strong>${out?` <span class="badge badge-out">Sin stock</span>`:''}</td>
       <td>$${p.precio.toLocaleString('es-AR')}</td>
-      <td class="${stockClass}">${sf}</td>
+      <td class="${out?'stock-out':'stock-ok'}">${sf}</td>
       <td class="col-venta">
         <div class="venta-input-wrap">
-          <input type="number" class="venta-input" id="q_${p.id}" min="1" max="${sf}" value="1" ${out?'disabled':''} onkeydown="if(event.key==='Enter')doSale('${cat}','${p.id}','${p.nombre.replace(/'/g,"\\'").replace(/"/g,'\\"')}',${p.precio})">
-          <button class="btn-registrar" ${out?'disabled':''} onclick="doSale('${cat}','${p.id}','${p.nombre.replace(/'/g,"\\'").replace(/"/g,'\\"')}',${p.precio})">
+          <input type="number" class="venta-input" id="q_${p.id}" min="0" max="${sf}" value="0"
+            ${out?'disabled':''}
+            oninput="checkOver(this,${sf})"
+            onkeydown="if(event.key==='Enter')doSale('${cat}','${pid}','${pnombre}',${p.precio})">
+          <button class="btn-registrar" id="btn_${p.id}" ${out?'disabled':''} onclick="doSale('${cat}','${pid}','${pnombre}',${p.precio})">
             <i class="ti ti-check"></i> ✓
           </button>
+        </div>
+        <div id="warn_${p.id}" style="font-size:11px;color:#A32D2D;margin-top:3px;display:none">
+          <i class="ti ti-alert-triangle"></i> Supera el stock disponible (${sf})
         </div>
       </td>
       <td style="text-align:center">${ts?`<span class="badge badge-ok">${ts}</span>`:'—'}</td>
@@ -344,25 +391,45 @@ function renderOpTable(){
   el.innerHTML=html;
 }
 
+function checkOver(inp, maxStock){
+  const qty = parseInt(inp.value)||0;
+  const id = inp.id.replace('q_','');
+  const warn = document.getElementById('warn_'+id);
+  const btn = document.getElementById('btn_'+id);
+  if(qty > maxStock){
+    inp.classList.add('over');
+    if(warn) warn.style.display='block';
+    if(btn) btn.disabled=true;
+  } else {
+    inp.classList.remove('over');
+    if(warn) warn.style.display='none';
+    if(btn) btn.disabled=false;
+  }
+}
+
 function doSale(cat,id,nombre,precio){
   const inp=document.getElementById('q_'+id);
   const qty=parseInt(inp?.value)||0;
-  if(qty<=0){toast('Ingresá una cantidad válida','error');return;}
+  if(qty<=0){toast('Ingresá una cantidad mayor a 0','error');return;}
   const p=products[cat].find(x=>x.id===id);
   if(!p)return;
-  if(qty>getStock(p)){toast(`Stock insuficiente (disponible: ${getStock(p)})`,'error');return;}
+  const sf=getStock(p);
+  if(qty>sf){toast(`Stock insuficiente (disponible: ${sf})`,'error');return;}
   recordSale(cat,id,qty);
-  if(inp)inp.value=1;
+  if(inp){inp.value=0;inp.classList.remove('over');}
+  const warn=document.getElementById('warn_'+id);
+  if(warn) warn.style.display='none';
   toast(`✓ ${qty} × ${nombre}  →  $${(qty*precio).toLocaleString('es-AR')}`,'success');
   renderOpTable();
 }
 
 // ADMIN
 function initAdm(){
+  const numStr=String(T.num).padStart(3,'0');
   document.getElementById('adm-badge-turno').textContent='Turno '+T.nombre;
   document.getElementById('adm-badge-turno').className='badge badge-'+T.nombre;
   document.getElementById('adm-fecha').textContent=T.fecha;
-  document.getElementById('adm-num').textContent='#'+T.num;
+  document.getElementById('adm-num').textContent='Planilla #'+numStr;
   document.getElementById('adm-user-badge').textContent=currentUser.name;
   renderAdmContent();
 }
@@ -373,11 +440,10 @@ function showAdm(name,btn){
   renderAdmContent();
 }
 function renderAdmContent(){
-  const el=document.getElementById('adm-content');
-  if(!el)return;
-  if(admSection==='resumen')el.innerHTML=renderResumen();
-  else if(admSection==='stock')el.innerHTML=renderStock();
-  else if(admSection==='historial')el.innerHTML=renderHistorial();
+  const el=document.getElementById('adm-content');if(!el)return;
+  if(admSection==='resumen') el.innerHTML=renderResumen();
+  else if(admSection==='stock') el.innerHTML=renderStock();
+  else if(admSection==='historial') el.innerHTML=renderHistorial();
   else el.innerHTML=renderUsuarios();
 }
 function renderResumen(){
@@ -390,7 +456,9 @@ function renderResumen(){
   const totM=rows.reduce((a,r)=>a+r.monto,0);
   const totP=rows.filter(r=>r.ventas>0).length;
   const porTurno=TURNOS.map((nom,i)=>{
-    const k=`T${T.diff*3+i+1}`;const s=getSales();let m=0;
+    const keys=dayKeys(T.fechaKey);
+    const k=keys[i]||'';
+    const s=getSales();let m=0;
     if(s[k]?.[cat])for(const[pid,q]of Object.entries(s[k][cat])){const p=(products[cat]||[]).find(x=>x.id===pid);if(p)m+=q*p.precio;}
     return{nom,m};
   });
@@ -411,7 +479,7 @@ function renderResumen(){
       <td>$${r.precio.toLocaleString('es-AR')}</td>
       <td>${r.stockInicial}</td>
       <td class="col-venta" style="text-align:center">${r.ventas>0?`<span class="badge badge-ok">${r.ventas}</span>`:'—'}</td>
-      <td class="${r.sf<=0?'stock-out':r.sf<=3?'stock-low':''}">${r.sf}</td>
+      <td class="${r.sf<=0?'stock-out':''}">${r.sf}</td>
       <td>${r.monto>0?'$'+r.monto.toLocaleString('es-AR'):'—'}</td>
     </tr>`).join('')}</tbody>
   </table></div>`;
@@ -434,9 +502,17 @@ function renderHistorial(){
   const fechas={};
   for(const k of Object.keys(s)){
     const num=parseInt(k.replace('T',''));if(isNaN(num))continue;
-    const diff=Math.floor((num-1)/3);
-    const d=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
-    d.setDate(d.getDate()+diff);
+    // reconstruir fecha desde número de turno
+    // turno 1 y 2 = dia 0 (13/06), turno 3+ = calcular
+    let diffDays, d;
+    const turnosDia0 = 3 - START_TURNO; // 2 turnos en dia 0 (tarde + noche)
+    if(num <= turnosDia0){
+      diffDays=0;
+    } else {
+      diffDays = Math.ceil((num - turnosDia0) / 3);
+    }
+    d=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
+    d.setDate(d.getDate()+diffDays);
     const fstr=d.toLocaleDateString('es-AR');
     if(!fechas[fstr])fechas[fstr]={keys:[],d};
     fechas[fstr].keys.push(k);
@@ -458,11 +534,11 @@ function renderUsuarios(){
   </div>`;
 }
 
-let toastT;
+let toastTimer;
 function toast(msg,type=''){
   const el=document.getElementById('toast');
   el.textContent=msg;el.className=type;el.classList.add('show');
-  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3000);
+  clearTimeout(toastTimer);toastTimer=setTimeout(()=>el.classList.remove('show'),3000);
 }
 </script>
 </body>
