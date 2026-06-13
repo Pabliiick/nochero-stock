@@ -167,9 +167,10 @@ const SHEET_ID = '1kRZBJo5l51FuVvEsLR8Z_hJV-X2AKHMsW-L-N0NzNBc';
 // Tarde = índice 1 (0=mañana, 1=tarde, 2=noche)
 // Arrancamos desde 13/06/2025 turno TARDE = turno #1
 const START_DATE  = new Date(2025, 5, 13); // 13 jun 2025
-const START_TURNO = 1; // 0=mañana, 1=tarde, 2=noche — arranca en tarde
+const START_TURNO = 1;
+const PLANILLA_INICIO = 19186;
 const TURNOS = ['mañana','tarde','noche'];
-const TURNO_NUM_OFFSET = 1; // el primer turno es #001
+ // el primer turno es #001
 const CATS = ['Lubricantes','Minimercado','Gas + Hielo'];
 
 const USERS = [
@@ -208,14 +209,14 @@ function getTurno(d){
   let num;
   if(diffDays === 0){
     // mismo día de inicio
-    num = (ti - START_TURNO) + 1;
-    if(num < 1) num = 1; // no hubo turno antes del inicio
+    num = PLANILLA_INICIO + (ti - START_TURNO);
+    if(num < PLANILLA_INICIO) num = PLANILLA_INICIO;
   } else {
     // turnos del día 0 desde START_TURNO hasta fin = (3 - START_TURNO)
     const turnosDia0 = 3 - START_TURNO;
     // días completos intermedios
     const diasCompletos = diffDays - 1;
-    num = turnosDia0 + diasCompletos * 3 + ti + 1;
+    num = PLANILLA_INICIO + turnosDia0 + diasCompletos * 3 + ti;
   }
 
   const fk = `${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
@@ -266,7 +267,6 @@ async function loadAllSheets(){
 function turnoKey(n){return`T${n}`}
 
 function dayKeys(fk){
-  // Para una fecha dada, devuelve las claves de los 3 turnos del día
   const day = new Date(fk+'T12:00:00');
   const start = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
   const diffDays = Math.round((day - start) / 86400000);
@@ -274,13 +274,12 @@ function dayKeys(fk){
   for(let i=0; i<3; i++){
     let num;
     if(diffDays === 0){
-      // solo los turnos a partir de START_TURNO
       const ti = START_TURNO + i;
       if(ti > 2) break;
-      num = i + 1;
+      num = PLANILLA_INICIO + i;
     } else {
       const turnosDia0 = 3 - START_TURNO;
-      num = turnosDia0 + (diffDays-1)*3 + i + 1;
+      num = PLANILLA_INICIO + turnosDia0 + (diffDays-1)*3 + i;
     }
     keys.push(`T${num}`);
   }
@@ -505,11 +504,12 @@ function renderHistorial(){
     // reconstruir fecha desde número de turno
     // turno 1 y 2 = dia 0 (13/06), turno 3+ = calcular
     let diffDays, d;
-    const turnosDia0 = 3 - START_TURNO; // 2 turnos en dia 0 (tarde + noche)
-    if(num <= turnosDia0){
+    const turnosDia0 = 3 - START_TURNO;
+    const relNum = num - PLANILLA_INICIO;
+    if(relNum <= turnosDia0){
       diffDays=0;
     } else {
-      diffDays = Math.ceil((num - turnosDia0) / 3);
+      diffDays = Math.ceil((relNum - turnosDia0) / 3);
     }
     d=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
     d.setDate(d.getDate()+diffDays);
