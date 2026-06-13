@@ -6,129 +6,104 @@
 <title>Nochero · Control de Stock</title>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
 <style>
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;min-height:100vh;color:#1a1a1a}
-  .screen{display:none}
-  .screen.active{display:block}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;min-height:100vh;color:#1a1a1a}
+.screen{display:none}.screen.active{display:block}
+.card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
+.container{max-width:980px;margin:0 auto;padding:1rem}
+.btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#1a1a1a;cursor:pointer;font-size:14px;font-family:inherit;transition:background .15s}
+.btn:hover{background:#f3f4f6}
+.btn:disabled{opacity:.4;cursor:not-allowed}
+.btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
+.btn-primary:hover{background:#0C447C}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-block{width:100%;justify-content:center}
+label{font-size:13px;color:#6b7280;display:block;margin-top:10px;margin-bottom:3px}
+input,select{width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#1a1a1a;font-family:inherit;font-size:14px;outline:none;transition:border .15s}
+input:focus,select:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,.1)}
+.badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600}
+.badge-mañana{background:#E6F1FB;color:#0C447C}
+.badge-tarde{background:#FAEEDA;color:#633806}
+.badge-noche{background:#EEEDFE;color:#3C3489}
+.badge-admin{background:#EAF3DE;color:#27500A}
+.badge-operador{background:#FEF3C7;color:#92400E}
+.badge-ok{background:#EAF3DE;color:#27500A}
+.badge-low{background:#FAEEDA;color:#633806}
+.badge-out{background:#FCEBEB;color:#A32D2D}
+.alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
+.alert-info{background:#E6F1FB;color:#0C447C}
+.alert-success{background:#EAF3DE;color:#27500A}
+.alert-danger{background:#FCEBEB;color:#A32D2D}
+.alert-warning{background:#FAEEDA;color:#633806}
+.tab-bar{display:flex;gap:4px;margin-bottom:1rem;background:#f3f4f6;border-radius:10px;padding:4px}
+.tab{flex:1;padding:7px 4px;text-align:center;border-radius:8px;cursor:pointer;font-size:13px;border:none;background:transparent;color:#6b7280;transition:all .15s;font-family:inherit}
+.tab.active{background:#fff;color:#1a1a1a;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.08)}
+.table-wrap{overflow-x:auto;border-radius:12px;border:1px solid #e5e7eb}
+table{width:100%;border-collapse:collapse;font-size:13px;background:#fff}
+th{text-align:left;padding:10px 12px;color:#6b7280;border-bottom:1px solid #e5e7eb;font-weight:500;white-space:nowrap;background:#f9fafb}
+td{padding:9px 12px;border-bottom:1px solid #f3f4f6;color:#1a1a1a;vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding:1rem 1.25rem;background:#fff;border-radius:12px;border:1px solid #e5e7eb;flex-wrap:wrap;gap:10px}
+.logo{font-size:18px;font-weight:600}
+.logo span{color:#185FA5}
+.header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:1rem}
+.metric{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:.875rem;text-align:center}
+.metric-val{font-size:20px;font-weight:600}
+.metric-lbl{font-size:11px;color:#6b7280;margin-top:3px}
+.login-wrap{max-width:380px;margin:3rem auto;padding:0 1rem}
+.section-title{font-size:15px;font-weight:600;margin-bottom:12px}
+.search-row{display:flex;gap:8px;margin-bottom:1rem;align-items:center}
+.search-row input{flex:1;margin:0}
+.turno-bar{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:6px}
 
-  /* Cards & layout */
-  .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
-  .container{max-width:960px;margin:0 auto;padding:1rem}
+/* VENTA COLUMN - destacada */
+th.col-venta{background:#185FA5;color:#fff;text-align:center;font-weight:700;font-size:13px}
+td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
+.venta-input-wrap{display:flex;align-items:center;justify-content:center;gap:6px}
+.venta-input{width:64px;padding:7px 6px;font-size:15px;font-weight:600;text-align:center;border:2px solid #185FA5;border-radius:8px;background:#fff;color:#185FA5;outline:none}
+.venta-input:focus{box-shadow:0 0 0 3px rgba(24,95,165,.2);border-color:#0C447C}
+.venta-input:disabled{background:#f3f4f6;border-color:#d1d5db;color:#9ca3af}
+.btn-registrar{padding:6px 10px;background:#185FA5;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;transition:background .15s}
+.btn-registrar:hover{background:#0C447C}
+.btn-registrar:disabled{background:#d1d5db;cursor:not-allowed}
 
-  /* Buttons */
-  .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#1a1a1a;cursor:pointer;font-size:14px;font-family:inherit;transition:background .15s}
-  .btn:hover{background:#f3f4f6}
-  .btn:disabled{opacity:.4;cursor:not-allowed}
-  .btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
-  .btn-primary:hover{background:#0C447C}
-  .btn-success{background:#3B6D11;color:#fff;border-color:#3B6D11}
-  .btn-success:hover{background:#27500A}
-  .btn-sm{padding:5px 10px;font-size:12px}
-  .btn-block{width:100%;justify-content:center}
+/* stock colors */
+.stock-ok{color:#27500A;font-weight:500}
+.stock-low{color:#633806;font-weight:600}
+.stock-out{color:#A32D2D;font-weight:600}
 
-  /* Forms */
-  label{font-size:13px;color:#6b7280;display:block;margin-top:10px;margin-bottom:3px}
-  input,select,textarea{width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#1a1a1a;font-family:inherit;font-size:14px;outline:none;transition:border .15s}
-  input:focus,select:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,165,.1)}
-  input[type=number].qty-input{width:64px;text-align:center;padding:5px 6px}
+#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:10px 22px;border-radius:999px;font-size:13px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+#toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+#toast.success{background:#3B6D11}
+#toast.error{background:#A32D2D}
 
-  /* Badges */
-  .badge{display:inline-block;padding:3px 10px;border-radius:999px;font-size:11px;font-weight:600}
-  .badge-mañana{background:#E6F1FB;color:#0C447C}
-  .badge-tarde{background:#FAEEDA;color:#633806}
-  .badge-noche{background:#EEEDFE;color:#3C3489}
-  .badge-admin{background:#EAF3DE;color:#27500A}
-  .badge-operador{background:#FEF3C7;color:#92400E}
-  .badge-ok{background:#EAF3DE;color:#27500A}
-  .badge-low{background:#FAEEDA;color:#633806}
-  .badge-out{background:#FCEBEB;color:#A32D2D}
-
-  /* Alerts */
-  .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
-  .alert-info{background:#E6F1FB;color:#0C447C}
-  .alert-success{background:#EAF3DE;color:#27500A}
-  .alert-danger{background:#FCEBEB;color:#A32D2D}
-  .alert-warning{background:#FAEEDA;color:#633806}
-
-  /* Tabs */
-  .tab-bar{display:flex;gap:4px;margin-bottom:1rem;background:#f3f4f6;border-radius:10px;padding:4px}
-  .tab{flex:1;padding:7px 4px;text-align:center;border-radius:8px;cursor:pointer;font-size:13px;border:none;background:transparent;color:#6b7280;transition:all .15s;font-family:inherit}
-  .tab.active{background:#fff;color:#1a1a1a;font-weight:500;box-shadow:0 1px 3px rgba(0,0,0,.08)}
-
-  /* Table */
-  .table-wrap{overflow-x:auto;border-radius:12px;border:1px solid #e5e7eb}
-  table{width:100%;border-collapse:collapse;font-size:13px;background:#fff}
-  th{text-align:left;padding:10px 12px;color:#6b7280;border-bottom:1px solid #e5e7eb;font-weight:500;white-space:nowrap;background:#f9fafb}
-  td{padding:9px 12px;border-bottom:1px solid #f3f4f6;color:#1a1a1a;vertical-align:middle}
-  tr:last-child td{border-bottom:none}
-  tr:hover td{background:#fafafa}
-
-  /* Header */
-  .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding:1rem 1.25rem;background:#fff;border-radius:12px;border:1px solid #e5e7eb}
-  .logo{font-size:18px;font-weight:600;color:#1a1a1a}
-  .logo span{color:#185FA5}
-  .header-right{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-
-  /* Metric cards */
-  .metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:1rem}
-  .metric{background:#fff;border:1px solid #e5e7eb;border-radius:10px;padding:.875rem;text-align:center}
-  .metric-val{font-size:20px;font-weight:600;color:#1a1a1a}
-  .metric-lbl{font-size:11px;color:#6b7280;margin-top:3px}
-
-  /* Login */
-  .login-wrap{max-width:380px;margin:3rem auto;padding:0 1rem}
-  .login-logo{text-align:center;margin-bottom:1.5rem}
-  .login-logo h1{font-size:26px;font-weight:700}
-  .login-logo p{font-size:13px;color:#6b7280;margin-top:4px}
-
-  /* Search */
-  .search-row{display:flex;gap:8px;margin-bottom:1rem;align-items:center}
-  .search-row input{flex:1;margin:0}
-
-  /* Turno info bar */
-  .turno-bar{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:6px}
-
-  /* Section title */
-  .section-title{font-size:15px;font-weight:600;margin-bottom:12px}
-
-  /* Stock edit inputs */
-  .stock-input{width:80px;padding:5px 8px;font-size:13px}
-
-  /* Toast */
-  #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:10px 20px;border-radius:999px;font-size:13px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
-  #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
-
-  @media(max-width:600px){
-    .header{flex-direction:column;gap:10px;align-items:flex-start}
-    .metrics{grid-template-columns:1fr 1fr}
-    th,td{padding:7px 8px}
-  }
+@media(max-width:600px){
+  .header{flex-direction:column;align-items:flex-start}
+  th,td{padding:7px 8px;font-size:12px}
+  .venta-input{width:52px;font-size:14px}
+}
 </style>
 </head>
 <body>
-
 <div id="toast"></div>
 
 <!-- LOGIN -->
 <div id="screen-login" class="screen active">
   <div class="login-wrap">
-    <div class="login-logo">
-      <h1>⛽ <span style="color:#185FA5">Nochero</span></h1>
-      <p>Control de stock · Lubricantes y Accesorios</p>
+    <div style="text-align:center;margin-bottom:1.5rem">
+      <div style="font-size:26px;font-weight:700">⛽ <span style="color:#185FA5">Nochero</span></div>
+      <div style="font-size:13px;color:#6b7280;margin-top:4px">Control de stock · Lubricantes y Accesorios</div>
     </div>
     <div class="card">
-      <div class="section-title">Ingresar al sistema</div>
+      <div class="section-title">Ingresar</div>
       <div id="login-msg"></div>
       <label>Usuario</label>
-      <select id="sel-user">
-        <option value="">— Seleccioná un usuario —</option>
-      </select>
+      <select id="sel-user"><option value="">— Seleccioná —</option></select>
       <label>Contraseña</label>
       <input type="password" id="inp-pass" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
       <div style="margin-top:1rem">
-        <button class="btn btn-primary btn-block" onclick="doLogin()">
-          <i class="ti ti-login"></i> Entrar
-        </button>
+        <button class="btn btn-primary btn-block" onclick="doLogin()"><i class="ti ti-login"></i> Entrar</button>
       </div>
     </div>
     <div style="text-align:center;font-size:12px;color:#9ca3af;margin-top:1rem" id="login-turno-info"></div>
@@ -143,22 +118,27 @@
       <div class="header-right">
         <div class="turno-bar">
           <span class="badge" id="op-badge-turno"></span>
-          <span id="op-fecha-turno"></span>
-          <span id="op-num-turno" style="font-size:11px;color:#9ca3af"></span>
+          <span id="op-fecha"></span>
+          <span id="op-num" style="font-size:11px;color:#9ca3af"></span>
         </div>
         <span class="badge badge-operador" id="op-user-badge"></span>
         <button class="btn btn-sm" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
       </div>
     </div>
+
+    <!-- instrucción clara -->
+    <div class="alert alert-info" style="margin-bottom:1rem">
+      <i class="ti ti-info-circle"></i>
+      <span>Ingresá la cantidad vendida en la columna azul <strong>"Cantidad vendida"</strong> y presioná <strong>✓</strong> para confirmar.</span>
+    </div>
+
     <div id="op-alert"></div>
     <div class="tab-bar" id="op-tabs"></div>
     <div class="search-row">
-      <input type="text" id="op-search" placeholder="🔍 Buscar producto..." oninput="renderProductTable()">
-      <button class="btn btn-sm" onclick="loadAllSheets(false)" id="op-reload-btn" title="Recargar desde Sheets">
-        <i class="ti ti-refresh"></i>
-      </button>
+      <input type="text" id="op-search" placeholder="🔍 Buscar producto..." oninput="renderOpTable()">
+      <button class="btn btn-sm" onclick="loadAllSheets()" title="Recargar productos"><i class="ti ti-refresh"></i></button>
     </div>
-    <div id="op-table-wrap"></div>
+    <div id="op-table"></div>
   </div>
 </div>
 
@@ -166,478 +146,323 @@
 <div id="screen-admin" class="screen">
   <div class="container">
     <div class="header">
-      <div class="logo">⛽ <span>Nochero</span> <span style="font-size:13px;font-weight:400;color:#6b7280">— Admin</span></div>
+      <div class="logo">⛽ <span>Nochero</span> <span style="font-size:13px;font-weight:400;color:#6b7280">— Administrador</span></div>
       <div class="header-right">
         <div class="turno-bar">
           <span class="badge" id="adm-badge-turno"></span>
-          <span id="adm-fecha-turno"></span>
-          <span id="adm-num-turno" style="font-size:11px;color:#9ca3af"></span>
+          <span id="adm-fecha"></span>
+          <span id="adm-num" style="font-size:11px;color:#9ca3af"></span>
         </div>
         <span class="badge badge-admin" id="adm-user-badge"></span>
         <button class="btn btn-sm" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
       </div>
     </div>
-    <div id="adm-alert"></div>
     <div class="tab-bar">
-      <button class="tab active" onclick="showAdminSection('resumen',this)"><i class="ti ti-chart-bar"></i> Resumen del día</button>
-      <button class="tab" onclick="showAdminSection('stock',this)"><i class="ti ti-package"></i> Stock / Sheets</button>
-      <button class="tab" onclick="showAdminSection('historial',this)"><i class="ti ti-history"></i> Historial</button>
-      <button class="tab" onclick="showAdminSection('usuarios',this)"><i class="ti ti-users"></i> Usuarios</button>
+      <button class="tab active" onclick="showAdm('resumen',this)"><i class="ti ti-chart-bar"></i> Resumen del día</button>
+      <button class="tab" onclick="showAdm('stock',this)"><i class="ti ti-refresh"></i> Sheets</button>
+      <button class="tab" onclick="showAdm('historial',this)"><i class="ti ti-history"></i> Historial</button>
+      <button class="tab" onclick="showAdm('usuarios',this)"><i class="ti ti-users"></i> Usuarios</button>
     </div>
     <div id="adm-content"></div>
   </div>
 </div>
 
 <script>
-// ─── CONFIG ───────────────────────────────────────────────────────────────────
 const SHEET_ID = '1kRZBJo5l51FuVvEsLR8Z_hJV-X2AKHMsW-L-N0NzNBc';
-const START_DATE = new Date(2025, 5, 15, 6, 0, 0); // 15 jun 2025 mañana
-const TURNOS = ['mañana', 'tarde', 'noche'];
-const TURNO_HOURS = [6, 14, 22]; // inicio de cada turno
-const CATS = ['Lubricantes', 'Minimercado', 'Gas + Hielo'];
+const START_DATE = new Date(2025,5,15,6,0,0);
+const TURNOS = ['mañana','tarde','noche'];
+const CATS = ['Lubricantes','Minimercado','Gas + Hielo'];
 
 const USERS = [
-  {id:'franco',   name:'Franco',   role:'admin',    pass:'franco123'},
-  {id:'sergio',   name:'Sergio',   role:'operador', pass:'sergio123'},
-  {id:'elias',    name:'Elías',    role:'operador', pass:'elias123'},
-  {id:'luciano',  name:'Luciano',  role:'operador', pass:'luciano123'},
-  {id:'gabi',     name:'Gabi',     role:'operador', pass:'gabi123'},
-  {id:'eitan',    name:'Eitan',    role:'operador', pass:'eitan123'},
-  {id:'anibal',   name:'Aníbal',   role:'operador', pass:'anibal123'},
-  {id:'agus',     name:'Agus',     role:'operador', pass:'agus123'},
+  {id:'franco',  name:'Franco',  role:'admin',    pass:'franco123'},
+  {id:'sergio',  name:'Sergio',  role:'operador', pass:'sergio123'},
+  {id:'elias',   name:'Elías',   role:'operador', pass:'elias123'},
+  {id:'luciano', name:'Luciano', role:'operador', pass:'luciano123'},
+  {id:'gabi',    name:'Gabi',    role:'operador', pass:'gabi123'},
+  {id:'eitan',   name:'Eitan',   role:'operador', pass:'eitan123'},
+  {id:'anibal',  name:'Aníbal',  role:'operador', pass:'anibal123'},
+  {id:'agus',    name:'Agus',    role:'operador', pass:'agus123'},
 ];
 
-// ─── STATE ────────────────────────────────────────────────────────────────────
-let currentUser = null;
-let currentCatIdx = 0;
-let adminSection = 'resumen';
-let adminCatIdx = 0;
-let products = {Lubricantes:[], Minimercado:[], 'Gas + Hielo':[]};
-let sheetsLoaded = false;
-let sheetsLoading = false;
+let currentUser=null, currentCat=0, admSection='resumen', admCat=0;
+let products={'Lubricantes':[],'Minimercado':[],'Gas + Hielo':[]};
+let sheetsLoaded=false, sheetsLoading=false;
 
-function getSales(){ return JSON.parse(localStorage.getItem('nochero_v2_sales')||'{}'); }
-function saveSalesData(s){ localStorage.setItem('nochero_v2_sales', JSON.stringify(s)); }
+function getSales(){return JSON.parse(localStorage.getItem('nochero_v3')||'{}')}
+function saveSales(s){localStorage.setItem('nochero_v3',JSON.stringify(s))}
 
-// ─── TURNO CALC ───────────────────────────────────────────────────────────────
-function getTurno(date){
-  date = date || new Date();
-  const h = date.getHours();
-  let tIdx;
-  if(h >= 6 && h < 14) tIdx = 0;
-  else if(h >= 14 && h < 22) tIdx = 1;
-  else tIdx = 2;
-
-  // Días desde start
-  const startDay = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
-  const today = new Date(date.getFullYear(), date.getMonth(), date.getDate());
-  // Si es turno noche y hora < 6, pertenece al día anterior
-  let dayDate = new Date(today);
-  if(h < 6){ dayDate.setDate(dayDate.getDate()-1); tIdx=2; }
-
-  const diffDays = Math.round((dayDate - startDay)/(1000*60*60*24));
-  const turnoNum = Math.max(1, diffDays * 3 + tIdx + 1);
-  const fechaStr = dayDate.toLocaleDateString('es-AR');
-  const fechaKey = `${dayDate.getFullYear()}-${String(dayDate.getMonth()+1).padStart(2,'0')}-${String(dayDate.getDate()).padStart(2,'0')}`;
-  return { num: turnoNum, nombre: TURNOS[tIdx], idx: tIdx, fecha: fechaStr, fechaKey, diffDays };
+function getTurno(d){
+  d=d||new Date();
+  const h=d.getHours();
+  let ti= h>=6&&h<14?0:h>=14&&h<22?1:2;
+  let day=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  if(h<6){day=new Date(day);day.setDate(day.getDate()-1);ti=2;}
+  const start=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
+  const diff=Math.round((day-start)/86400000);
+  const num=Math.max(1,diff*3+ti+1);
+  const fk=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
+  return{num,nombre:TURNOS[ti],idx:ti,fecha:day.toLocaleDateString('es-AR'),fechaKey:fk,diff};
 }
+const T=getTurno();
 
-const currentTurno = getTurno();
+function parsePrecio(s){return parseInt((s||'').replace(/[$.\s]/g,'').replace(',',''))||0}
+function parseNum(s){return parseInt(s)||0}
 
-// ─── INIT ─────────────────────────────────────────────────────────────────────
-document.addEventListener('DOMContentLoaded', ()=>{
-  // Populate user selector
-  const sel = document.getElementById('sel-user');
-  USERS.forEach(u=>{
-    const o = document.createElement('option');
-    o.value = u.id;
-    o.textContent = u.name + (u.role==='admin'?' (Administrador)':'');
-    sel.appendChild(o);
+async function loadSheet(name){
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(name)}`;
+  const res=await fetch(url);
+  const text=await res.text();
+  const rows=text.trim().split('\n').map(l=>{
+    const r=[],re=/("(?:[^"]|"")*"|[^,]*),?/g;let m;
+    while((m=re.exec(l))!==null){if(m[0]==='')break;r.push(m[1].replace(/^"|"$/g,'').replace(/""/g,'"').trim())}
+    return r;
   });
-  // Turno info en login
-  document.getElementById('login-turno-info').textContent =
-    `Turno actual: ${currentTurno.nombre} · ${currentTurno.fecha} · #${currentTurno.num}`;
-});
-
-// ─── LOGIN ────────────────────────────────────────────────────────────────────
-function doLogin(){
-  const uid = document.getElementById('sel-user').value;
-  const pass = document.getElementById('inp-pass').value;
-  const user = USERS.find(u=>u.id===uid && u.pass===pass);
-  if(!user){
-    document.getElementById('login-msg').innerHTML =
-      '<div class="alert alert-danger"><i class="ti ti-alert-circle"></i> Usuario o contraseña incorrectos.</div>';
-    return;
-  }
-  currentUser = user;
-  document.getElementById('login-msg').innerHTML='';
-  document.getElementById('inp-pass').value='';
-  showScreen(user.role==='admin' ? 'admin' : 'operador');
-  if(!sheetsLoaded) loadAllSheets(true);
-}
-
-function logout(){
-  currentUser = null;
-  showScreen('login');
-}
-
-// ─── SCREENS ─────────────────────────────────────────────────────────────────
-function showScreen(name){
-  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
-  document.getElementById('screen-'+name).classList.add('active');
-  if(name==='operador') initOperadorScreen();
-  if(name==='admin') initAdminScreen();
-}
-
-// ─── SHEETS LOAD ─────────────────────────────────────────────────────────────
-async function parseCSV(text){
-  return text.trim().split('\n').map(line=>{
-    const result=[], re=/("(?:[^"]|"")*"|[^,]*),?/g;
-    let m;
-    while((m=re.exec(line))!==null){
-      if(m[0]==='') break;
-      result.push(m[1].replace(/^"|"$/g,'').replace(/""/g,'"').trim());
-    }
-    return result;
-  });
-}
-
-function parsePrecio(s){ return parseInt((s||'').replace(/[$.\s]/g,'').replace(',',''))||0; }
-function parseNum(s){ return parseInt(s)||0; }
-
-async function loadSheet(sheetName){
-  const url = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(sheetName)}`;
-  const res = await fetch(url);
-  if(!res.ok) throw new Error('No se pudo cargar la hoja: '+sheetName);
-  const text = await res.text();
-  const rows = await parseCSV(text);
-  const prods = [];
-  let headerFound = false;
+  const prods=[];let hf=false;
   for(const row of rows){
-    const first = (row[0]||'').toUpperCase();
-    if(first.includes('PRODUCTO')){ headerFound=true; continue; }
-    if(!headerFound) continue;
-    const nombre = (row[0]||'').trim();
-    if(!nombre || first.includes('TOTAL') || first===''|| nombre===',') continue;
-    const precio = parsePrecio(row[1]);
-    const stockInicial = parseNum(row[2]);
-    prods.push({
-      id: nombre.toLowerCase().replace(/[^a-z0-9]/g,'_').replace(/__+/g,'_'),
-      nombre, precio, stockInicial, categoria: sheetName
-    });
+    const f=(row[0]||'').toUpperCase();
+    if(f.includes('PRODUCTO')){hf=true;continue;}
+    if(!hf)continue;
+    const nombre=(row[0]||'').trim();
+    if(!nombre||f.includes('TOTAL'))continue;
+    prods.push({id:nombre.toLowerCase().replace(/[^a-z0-9]/g,'_').replace(/__+/g,'_'),nombre,precio:parsePrecio(row[1]),stockInicial:parseNum(row[2]),categoria:name});
   }
   return prods;
 }
 
-function setAlert(screenId, html){
-  const el = document.getElementById(screenId+'-alert');
-  if(el) el.innerHTML = html;
-}
-
-async function loadAllSheets(silent){
-  if(sheetsLoading) return;
-  sheetsLoading = true;
-  if(!silent){
-    toast('Cargando productos desde Google Sheets...');
-  }
+async function loadAllSheets(){
+  if(sheetsLoading)return;
+  sheetsLoading=true;
+  toast('Cargando desde Google Sheets...');
   try{
-    const [lub, mini, gas] = await Promise.all([
-      loadSheet('Lubricantes'),
-      loadSheet('Minimercado'),
-      loadSheet('Gas + Hielo'),
-    ]);
-    products = { Lubricantes: lub, Minimercado: mini, 'Gas + Hielo': gas };
-    sheetsLoaded = true;
-    toast(`✓ ${lub.length + mini.length + gas.length} productos cargados`);
-    renderProductTable();
-    if(adminSection==='stock') renderAdminContent();
-  } catch(e){
-    toast('⚠ Error al cargar. ¿El Sheets es público?');
-  }
-  sheetsLoading = false;
+    const[a,b,c]=await Promise.all([loadSheet('Lubricantes'),loadSheet('Minimercado'),loadSheet('Gas + Hielo')]);
+    products={'Lubricantes':a,'Minimercado':b,'Gas + Hielo':c};
+    sheetsLoaded=true;
+    toast(`✓ ${a.length+b.length+c.length} productos cargados`,'success');
+    renderOpTable();if(admSection==='resumen'||admSection==='stock')renderAdmContent();
+  }catch(e){toast('Error al cargar. ¿El Sheets es público?','error');}
+  sheetsLoading=false;
 }
 
-// ─── TURNO KEYS ──────────────────────────────────────────────────────────────
-function turnoKey(turnoNum){ return `T${turnoNum}`; }
-function dayTurnoKeys(fechaKey){
-  // Para una fecha, los 3 turnos posibles
-  const day = new Date(fechaKey+'T12:00:00');
-  const start = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
-  const diffDays = Math.round((day-start)/(1000*60*60*24));
-  return [1,2,3].map((_,i)=> `T${diffDays*3+i+1}`);
+function turnoKey(n){return`T${n}`}
+function dayKeys(fk){
+  const day=new Date(fk+'T12:00:00');
+  const start=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
+  const diff=Math.round((day-start)/86400000);
+  return[0,1,2].map((_,i)=>`T${diff*3+i+1}`);
+}
+function getSalesTorno(cat,id){const s=getSales();return(s[turnoKey(T.num)]?.[cat]?.[id])||0}
+function getSalesDay(cat,id,fk){const s=getSales();return dayKeys(fk||T.fechaKey).reduce((a,k)=>a+((s[k]?.[cat]?.[id])||0),0)}
+function getStock(p){return p.stockInicial-getSalesDay(p.categoria,p.id)}
+function recordSale(cat,id,qty){
+  const s=getSales(),k=turnoKey(T.num);
+  if(!s[k])s[k]={};if(!s[k][cat])s[k][cat]={};
+  s[k][cat][id]=(s[k][cat][id]||0)+qty;saveSales(s);
 }
 
-function getSalesTornoTotal(cat, prodId){ // ventas en turno actual
-  const s = getSales();
-  return (s[turnoKey(currentTurno.num)]?.[cat]?.[prodId]) || 0;
+// LOGIN
+document.addEventListener('DOMContentLoaded',()=>{
+  const sel=document.getElementById('sel-user');
+  USERS.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name+(u.role==='admin'?' (Admin)':'');sel.appendChild(o);});
+  document.getElementById('login-turno-info').textContent=`Turno actual: ${T.nombre} · ${T.fecha} · #${T.num}`;
+});
+
+function doLogin(){
+  const uid=document.getElementById('sel-user').value;
+  const pass=document.getElementById('inp-pass').value;
+  const user=USERS.find(u=>u.id===uid&&u.pass===pass);
+  if(!user){document.getElementById('login-msg').innerHTML='<div class="alert alert-danger"><i class="ti ti-alert-circle"></i> Usuario o contraseña incorrectos.</div>';return;}
+  currentUser=user;
+  document.getElementById('login-msg').innerHTML='';
+  document.getElementById('inp-pass').value='';
+  showScreen(user.role==='admin'?'admin':'operador');
+  if(!sheetsLoaded)loadAllSheets();
+}
+function logout(){currentUser=null;currentCat=0;showScreen('login');}
+
+function showScreen(name){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById('screen-'+name).classList.add('active');
+  if(name==='operador')initOp();
+  if(name==='admin')initAdm();
 }
 
-function getSalesDayTotal(cat, prodId, fechaKey){ // ventas en el día
-  const s = getSales();
-  const keys = dayTurnoKeys(fechaKey||currentTurno.fechaKey);
-  return keys.reduce((acc,k)=> acc + ((s[k]?.[cat]?.[prodId])||0), 0);
+// OPERADOR
+function initOp(){
+  document.getElementById('op-badge-turno').textContent='Turno '+T.nombre;
+  document.getElementById('op-badge-turno').className='badge badge-'+T.nombre;
+  document.getElementById('op-fecha').textContent=T.fecha;
+  document.getElementById('op-num').textContent='#'+T.num;
+  document.getElementById('op-user-badge').textContent=currentUser.name;
+  buildOpTabs();renderOpTable();
 }
-
-function getStockFinal(prod){
-  const day = getSalesDayTotal(prod.categoria, prod.id);
-  return prod.stockInicial - day;
-}
-
-function recordSale(cat, prodId, qty){
-  const s = getSales();
-  const k = turnoKey(currentTurno.num);
-  if(!s[k]) s[k]={};
-  if(!s[k][cat]) s[k][cat]={};
-  s[k][cat][prodId] = (s[k][cat][prodId]||0) + qty;
-  saveSalesData(s);
-}
-
-// ─── OPERADOR SCREEN ──────────────────────────────────────────────────────────
-function initOperadorScreen(){
-  const t = currentTurno;
-  document.getElementById('op-badge-turno').textContent = 'Turno '+t.nombre;
-  document.getElementById('op-badge-turno').className = 'badge badge-'+t.nombre;
-  document.getElementById('op-fecha-turno').textContent = t.fecha;
-  document.getElementById('op-num-turno').textContent = '#'+t.num;
-  document.getElementById('op-user-badge').textContent = currentUser.name;
-  buildOpTabs();
-  renderProductTable();
-}
-
 function buildOpTabs(){
-  const bar = document.getElementById('op-tabs');
-  bar.innerHTML = CATS.map((c,i)=>
-    `<button class="tab ${i===currentCatIdx?'active':''}" onclick="setOpCat(${i})">${c}</button>`
-  ).join('');
+  document.getElementById('op-tabs').innerHTML=CATS.map((c,i)=>`<button class="tab ${i===currentCat?'active':''}" onclick="currentCat=${i};buildOpTabs();renderOpTable()">${c}</button>`).join('');
 }
+function renderOpTable(){
+  const cat=CATS[currentCat];
+  const search=(document.getElementById('op-search')?.value||'').toLowerCase();
+  const prods=(products[cat]||[]).filter(p=>p.nombre&&(!search||p.nombre.toLowerCase().includes(search)));
+  const el=document.getElementById('op-table');
 
-function setOpCat(i){ currentCatIdx=i; buildOpTabs(); renderProductTable(); }
-
-function renderProductTable(){
-  const cat = CATS[currentCatIdx];
-  const search = (document.getElementById('op-search')?.value||'').toLowerCase();
-  const prods = (products[cat]||[]).filter(p=>p.nombre && (!search || p.nombre.toLowerCase().includes(search)));
-
-  let html = '';
   if(!sheetsLoaded){
-    html = `<div class="alert alert-warning"><i class="ti ti-alert-triangle"></i> Cargando productos... Si tarda, hacé clic en <strong>↺</strong> arriba a la derecha.</div>`;
-  } else if(prods.length===0){
-    html = `<div class="alert alert-info"><i class="ti ti-info-circle"></i> No se encontraron productos.</div>`;
-  } else {
-    html = `<div class="table-wrap"><table>
-      <thead><tr>
-        <th>Producto</th><th>Precio</th><th>Stock ini.</th><th>Stock actual</th><th>Vend. turno</th><th>Registrar venta</th>
-      </tr></thead><tbody>`;
-    for(const p of prods){
-      const sf = getStockFinal(p);
-      const ts = getSalesTornoTotal(cat, p.id);
-      const out = sf<=0;
-      const low = sf>0 && sf<=3;
-      html += `<tr>
-        <td><strong>${p.nombre}</strong>${out?` <span class="badge badge-out">Sin stock</span>`:low?` <span class="badge badge-low">Bajo</span>`:''}</td>
-        <td>$${p.precio.toLocaleString('es-AR')}</td>
-        <td>${p.stockInicial}</td>
-        <td style="${out?'color:#A32D2D;font-weight:600':low?'color:#633806;font-weight:600':''}">${sf}</td>
-        <td>${ts||'—'}</td>
-        <td style="white-space:nowrap">
-          <input type="number" class="qty-input" id="q_${p.id}" min="1" max="${sf}" value="1" ${out?'disabled':''}>
-          <button class="btn btn-primary btn-sm" style="margin-left:4px" ${out?'disabled':''} onclick="doSale('${cat}','${p.id}','${p.nombre.replace(/'/g,"\\'")}',${p.precio})">
-            <i class="ti ti-plus"></i>
-          </button>
-        </td>
-      </tr>`;
-    }
-    html += '</tbody></table></div>';
+    el.innerHTML='<div class="alert alert-warning"><i class="ti ti-loader"></i> Cargando productos... un momento.</div>';return;
   }
-  document.getElementById('op-table-wrap').innerHTML = html;
+  if(!prods.length){
+    el.innerHTML='<div class="alert alert-info"><i class="ti ti-info-circle"></i> No se encontraron productos.</div>';return;
+  }
+
+  let html=`<div class="table-wrap"><table>
+    <thead><tr>
+      <th style="min-width:180px">Producto</th>
+      <th>Precio</th>
+      <th>Stock disponible</th>
+      <th class="col-venta">✏ Cantidad vendida</th>
+      <th>Vendido este turno</th>
+    </tr></thead><tbody>`;
+
+  for(const p of prods){
+    const sf=getStock(p);
+    const ts=getSalesTorno(cat,p.id);
+    const out=sf<=0, low=sf>0&&sf<=3;
+    const stockClass=out?'stock-out':low?'stock-low':'stock-ok';
+    html+=`<tr>
+      <td><strong>${p.nombre}</strong>${out?` <span class="badge badge-out">Sin stock</span>`:low?` <span class="badge badge-low">Bajo</span>`:''}</td>
+      <td>$${p.precio.toLocaleString('es-AR')}</td>
+      <td class="${stockClass}">${sf}</td>
+      <td class="col-venta">
+        <div class="venta-input-wrap">
+          <input type="number" class="venta-input" id="q_${p.id}" min="1" max="${sf}" value="1" ${out?'disabled':''} onkeydown="if(event.key==='Enter')doSale('${cat}','${p.id}','${p.nombre.replace(/'/g,"\\'").replace(/"/g,'\\"')}',${p.precio})">
+          <button class="btn-registrar" ${out?'disabled':''} onclick="doSale('${cat}','${p.id}','${p.nombre.replace(/'/g,"\\'").replace(/"/g,'\\"')}',${p.precio})">
+            <i class="ti ti-check"></i> ✓
+          </button>
+        </div>
+      </td>
+      <td style="text-align:center">${ts?`<span class="badge badge-ok">${ts}</span>`:'—'}</td>
+    </tr>`;
+  }
+  html+='</tbody></table></div>';
+  el.innerHTML=html;
 }
 
-function doSale(cat, prodId, nombre, precio){
-  const inp = document.getElementById('q_'+prodId);
-  const qty = parseInt(inp?.value)||1;
-  if(qty<=0){ toast('⚠ Cantidad inválida'); return; }
-  const prod = products[cat].find(p=>p.id===prodId);
-  if(!prod) return;
-  const sf = getStockFinal(prod);
-  if(qty>sf){ toast(`⚠ Stock insuficiente (disponible: ${sf})`); return; }
-  recordSale(cat, prodId, qty);
-  toast(`✓ ${qty} × ${nombre}  $${(qty*precio).toLocaleString('es-AR')}`);
-  renderProductTable();
+function doSale(cat,id,nombre,precio){
+  const inp=document.getElementById('q_'+id);
+  const qty=parseInt(inp?.value)||0;
+  if(qty<=0){toast('Ingresá una cantidad válida','error');return;}
+  const p=products[cat].find(x=>x.id===id);
+  if(!p)return;
+  if(qty>getStock(p)){toast(`Stock insuficiente (disponible: ${getStock(p)})`,'error');return;}
+  recordSale(cat,id,qty);
+  if(inp)inp.value=1;
+  toast(`✓ ${qty} × ${nombre}  →  $${(qty*precio).toLocaleString('es-AR')}`,'success');
+  renderOpTable();
 }
 
-// ─── ADMIN SCREEN ─────────────────────────────────────────────────────────────
-function initAdminScreen(){
-  const t = currentTurno;
-  document.getElementById('adm-badge-turno').textContent = 'Turno '+t.nombre;
-  document.getElementById('adm-badge-turno').className = 'badge badge-'+t.nombre;
-  document.getElementById('adm-fecha-turno').textContent = t.fecha;
-  document.getElementById('adm-num-turno').textContent = '#'+t.num;
-  document.getElementById('adm-user-badge').textContent = currentUser.name;
-  renderAdminContent();
+// ADMIN
+function initAdm(){
+  document.getElementById('adm-badge-turno').textContent='Turno '+T.nombre;
+  document.getElementById('adm-badge-turno').className='badge badge-'+T.nombre;
+  document.getElementById('adm-fecha').textContent=T.fecha;
+  document.getElementById('adm-num').textContent='#'+T.num;
+  document.getElementById('adm-user-badge').textContent=currentUser.name;
+  renderAdmContent();
 }
-
-function showAdminSection(name, btn){
-  adminSection = name;
+function showAdm(name,btn){
+  admSection=name;
   document.querySelectorAll('#screen-admin .tab').forEach(t=>t.classList.remove('active'));
-  if(btn) btn.classList.add('active');
-  renderAdminContent();
+  if(btn)btn.classList.add('active');
+  renderAdmContent();
 }
-
-function renderAdminContent(){
-  const el = document.getElementById('adm-content');
-  if(!el) return;
-  if(adminSection==='resumen') el.innerHTML = renderResumen();
-  else if(adminSection==='stock') el.innerHTML = renderStock();
-  else if(adminSection==='historial') el.innerHTML = renderHistorial();
-  else if(adminSection==='usuarios') el.innerHTML = renderUsuarios();
+function renderAdmContent(){
+  const el=document.getElementById('adm-content');
+  if(!el)return;
+  if(admSection==='resumen')el.innerHTML=renderResumen();
+  else if(admSection==='stock')el.innerHTML=renderStock();
+  else if(admSection==='historial')el.innerHTML=renderHistorial();
+  else el.innerHTML=renderUsuarios();
 }
-
 function renderResumen(){
-  const cat = CATS[adminCatIdx];
-  const prods = products[cat]||[];
-  const fecha = currentTurno.fechaKey;
-  const rows = prods.filter(p=>p.nombre).map(p=>{
-    const ventas = getSalesDayTotal(cat, p.id, fecha);
-    const monto = ventas * p.precio;
-    return {...p, ventas, monto, sf: p.stockInicial - ventas};
+  const cat=CATS[admCat];
+  const rows=(products[cat]||[]).filter(p=>p.nombre).map(p=>{
+    const v=getSalesDay(cat,p.id,T.fechaKey);
+    return{...p,ventas:v,monto:v*p.precio,sf:p.stockInicial-v};
   });
-
-  const totalU = rows.reduce((a,r)=>a+r.ventas,0);
-  const totalM = rows.reduce((a,r)=>a+r.monto,0);
-  const totalProd = rows.filter(r=>r.ventas>0).length;
-
-  // Por turno
-  const porTurno = TURNOS.map((nombre,i)=>{
-    const diffDays = currentTurno.diffDays;
-    const k = `T${diffDays*3+i+1}`;
-    const s = getSales();
-    let monto=0;
-    if(s[k]?.[cat]){
-      for(const [pid,qty] of Object.entries(s[k][cat])){
-        const p = prods.find(x=>x.id===pid);
-        if(p) monto += qty*p.precio;
-      }
-    }
-    return {nombre, monto, k};
+  const totU=rows.reduce((a,r)=>a+r.ventas,0);
+  const totM=rows.reduce((a,r)=>a+r.monto,0);
+  const totP=rows.filter(r=>r.ventas>0).length;
+  const porTurno=TURNOS.map((nom,i)=>{
+    const k=`T${T.diff*3+i+1}`;const s=getSales();let m=0;
+    if(s[k]?.[cat])for(const[pid,q]of Object.entries(s[k][cat])){const p=(products[cat]||[]).find(x=>x.id===pid);if(p)m+=q*p.precio;}
+    return{nom,m};
   });
-
-  let html = `
+  return`
   <div class="metrics">
-    <div class="metric"><div class="metric-val">${totalU}</div><div class="metric-lbl">Unidades hoy</div></div>
-    <div class="metric"><div class="metric-val">$${totalM.toLocaleString('es-AR')}</div><div class="metric-lbl">Monto cobrado hoy</div></div>
-    <div class="metric"><div class="metric-val">${totalProd}</div><div class="metric-lbl">Productos movidos</div></div>
+    <div class="metric"><div class="metric-val">${totU}</div><div class="metric-lbl">Unidades vendidas hoy</div></div>
+    <div class="metric"><div class="metric-val">$${totM.toLocaleString('es-AR')}</div><div class="metric-lbl">Monto cobrado hoy</div></div>
+    <div class="metric"><div class="metric-val">${totP}</div><div class="metric-lbl">Productos movidos</div></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem">
-    ${porTurno.map(t=>`<div class="metric">
-      <div style="font-size:11px;margin-bottom:4px"><span class="badge badge-${t.nombre}">${t.nombre}</span></div>
-      <div class="metric-val" style="font-size:16px">$${t.monto.toLocaleString('es-AR')}</div>
-    </div>`).join('')}
+    ${porTurno.map(t=>`<div class="metric"><div style="margin-bottom:4px"><span class="badge badge-${t.nom}">${t.nom}</span></div><div class="metric-val" style="font-size:16px">$${t.m.toLocaleString('es-AR')}</div></div>`).join('')}
   </div>
-  <div class="tab-bar">
-    ${CATS.map((c,i)=>`<button class="tab ${i===adminCatIdx?'active':''}" onclick="adminCatIdx=${i};renderAdminContent()">${c}</button>`).join('')}
-  </div>
+  <div class="tab-bar">${CATS.map((c,i)=>`<button class="tab ${i===admCat?'active':''}" onclick="admCat=${i};renderAdmContent()">${c}</button>`).join('')}</div>
   <div class="table-wrap"><table>
-    <thead><tr><th>Producto</th><th>Precio</th><th>Stock ini.</th><th>Ventas del día</th><th>Stock final</th><th>Monto</th></tr></thead>
-    <tbody>`;
-
-  for(const r of rows){
-    html += `<tr style="${r.ventas>0?'font-weight:500':''}">
+    <thead><tr><th>Producto</th><th>Precio</th><th>Stock ini.</th><th class="col-venta">Ventas del día</th><th>Stock final</th><th>Monto</th></tr></thead>
+    <tbody>${rows.map(r=>`<tr style="${r.ventas>0?'font-weight:500':''}">
       <td>${r.nombre}</td>
       <td>$${r.precio.toLocaleString('es-AR')}</td>
       <td>${r.stockInicial}</td>
-      <td>${r.ventas>0?`<span class="badge badge-ok">${r.ventas}</span>`:'—'}</td>
-      <td style="${r.sf<=0?'color:#A32D2D':r.sf<=3?'color:#633806':''}">${r.sf}</td>
+      <td class="col-venta" style="text-align:center">${r.ventas>0?`<span class="badge badge-ok">${r.ventas}</span>`:'—'}</td>
+      <td class="${r.sf<=0?'stock-out':r.sf<=3?'stock-low':''}">${r.sf}</td>
       <td>${r.monto>0?'$'+r.monto.toLocaleString('es-AR'):'—'}</td>
-    </tr>`;
-  }
-  html += `</tbody></table></div>`;
-  return html;
+    </tr>`).join('')}</tbody>
+  </table></div>`;
 }
-
 function renderStock(){
-  const total = Object.values(products).reduce((a,v)=>a+v.length,0);
-  return `
-  <div class="card">
-    <div class="section-title"><i class="ti ti-refresh"></i> Recargar productos desde Google Sheets</div>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:1rem">Trae los productos, precios y stock inicial actualizados directamente del Sheets.</p>
-    <button class="btn btn-primary" onclick="loadAllSheets(false)"><i class="ti ti-refresh"></i> Recargar ahora</button>
-    ${sheetsLoaded?`<div class="alert alert-success" style="margin-top:1rem"><i class="ti ti-check"></i> ${total} productos cargados correctamente.</div>`:''}
+  const total=Object.values(products).reduce((a,v)=>a+v.length,0);
+  return`<div class="card">
+    <div class="section-title"><i class="ti ti-refresh"></i> Recargar desde Google Sheets</div>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:1rem">Trae precios y stock inicial actualizados del Sheets.</p>
+    <button class="btn btn-primary" onclick="loadAllSheets()"><i class="ti ti-refresh"></i> Recargar ahora</button>
+    ${sheetsLoaded?`<div class="alert alert-success" style="margin-top:1rem"><i class="ti ti-check"></i> ${total} productos cargados.</div>`:''}
   </div>
   <div class="card">
-    <div class="section-title"><i class="ti ti-table"></i> Editar en Google Sheets</div>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:1rem">Abrí el archivo original para modificar precios, stock inicial y agregar productos.</p>
-    <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit" target="_blank" class="btn">
-      <i class="ti ti-external-link"></i> Abrir Google Sheets
-    </a>
+    <div class="section-title"><i class="ti ti-external-link"></i> Editar en Google Sheets</div>
+    <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit" target="_blank" class="btn"><i class="ti ti-table"></i> Abrir Google Sheets</a>
   </div>`;
 }
-
 function renderHistorial(){
-  const s = getSales();
-  const fechas = {};
+  const s=getSales();
+  const fechas={};
   for(const k of Object.keys(s)){
-    // k = T{num}
-    const num = parseInt(k.replace('T',''));
-    if(isNaN(num)) continue;
-    const diffDays = Math.floor((num-1)/3);
-    const d = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
-    d.setDate(d.getDate()+diffDays);
-    const fk = d.toLocaleDateString('es-AR');
-    if(!fechas[fk]) fechas[fk]={keys:[], fecha:d};
-    fechas[fk].keys.push(k);
+    const num=parseInt(k.replace('T',''));if(isNaN(num))continue;
+    const diff=Math.floor((num-1)/3);
+    const d=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
+    d.setDate(d.getDate()+diff);
+    const fstr=d.toLocaleDateString('es-AR');
+    if(!fechas[fstr])fechas[fstr]={keys:[],d};
+    fechas[fstr].keys.push(k);
   }
-
-  const fechasOrden = Object.entries(fechas).sort((a,b)=>b[1].fecha-a[1].fecha);
-  if(fechasOrden.length===0) return `<div class="alert alert-info"><i class="ti ti-info-circle"></i> Sin ventas registradas aún.</div>`;
-
-  let html='';
-  for(const [fStr, {keys}] of fechasOrden){
-    let montoTotal=0; let uTotal=0;
-    for(const k of keys){
-      for(const cat of CATS){
-        if(!s[k]?.[cat]) continue;
-        for(const [pid,qty] of Object.entries(s[k][cat])){
-          const p = products[cat]?.find(x=>x.id===pid);
-          if(p){ montoTotal+=qty*p.precio; uTotal+=qty; }
-        }
-      }
-    }
-    html+=`<div class="card">
-      <div style="display:flex;justify-content:space-between;align-items:center">
-        <div style="font-weight:600">${fStr}</div>
-        <div style="font-size:13px;color:#6b7280">${uTotal} uds · $${montoTotal.toLocaleString('es-AR')}</div>
-      </div>
-    </div>`;
-  }
-  return html;
+  const ord=Object.entries(fechas).sort((a,b)=>b[1].d-a[1].d);
+  if(!ord.length)return`<div class="alert alert-info"><i class="ti ti-info-circle"></i> Sin ventas registradas aún.</div>`;
+  return ord.map(([fstr,{keys}])=>{
+    let m=0,u=0;
+    for(const k of keys)for(const cat of CATS){if(!s[k]?.[cat])continue;for(const[pid,q]of Object.entries(s[k][cat])){const p=(products[cat]||[]).find(x=>x.id===pid);if(p){m+=q*p.precio;u+=q;}}}
+    return`<div class="card" style="display:flex;justify-content:space-between;align-items:center"><strong>${fstr}</strong><span style="font-size:13px;color:#6b7280">${u} uds · $${m.toLocaleString('es-AR')}</span></div>`;
+  }).join('');
 }
-
 function renderUsuarios(){
-  return `<div class="card">
-    <div class="section-title"><i class="ti ti-users"></i> Usuarios del sistema</div>
-    <div class="table-wrap"><table>
-      <thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Contraseña</th></tr></thead>
-      <tbody>
-        ${USERS.map(u=>`<tr>
-          <td><strong>${u.name}</strong></td>
-          <td><code style="font-size:12px;background:#f3f4f6;padding:2px 6px;border-radius:4px">${u.id}</code></td>
-          <td><span class="badge badge-${u.role==='admin'?'admin':'operador'}">${u.role}</span></td>
-          <td><code style="font-size:12px;background:#f3f4f6;padding:2px 6px;border-radius:4px">${u.pass}</code></td>
-        </tr>`).join('')}
-      </tbody>
-    </table></div>
-    <p style="font-size:12px;color:#9ca3af;margin-top:1rem"><i class="ti ti-info-circle"></i> Para cambiar contraseñas, editá el archivo index.html y modificá el array USERS.</p>
+  return`<div class="card">
+    <div class="section-title"><i class="ti ti-users"></i> Usuarios</div>
+    <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Contraseña</th></tr></thead><tbody>
+    ${USERS.map(u=>`<tr><td><strong>${u.name}</strong></td><td><code>${u.id}</code></td><td><span class="badge badge-${u.role==='admin'?'admin':'operador'}">${u.role}</span></td><td><code>${u.pass}</code></td></tr>`).join('')}
+    </tbody></table>
   </div>`;
 }
 
-// ─── TOAST ────────────────────────────────────────────────────────────────────
-let toastTimer;
-function toast(msg){
-  const el = document.getElementById('toast');
-  el.textContent = msg;
-  el.classList.add('show');
-  clearTimeout(toastTimer);
-  toastTimer = setTimeout(()=>el.classList.remove('show'), 3000);
+let toastT;
+function toast(msg,type=''){
+  const el=document.getElementById('toast');
+  el.textContent=msg;el.className=type;el.classList.add('show');
+  clearTimeout(toastT);toastT=setTimeout(()=>el.classList.remove('show'),3000);
 }
 </script>
 </body>
