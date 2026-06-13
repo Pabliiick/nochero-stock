@@ -207,6 +207,13 @@ const LS={
 // ═══════════════════════════════════════════════════
 function startDate(){return new Date(START_YEAR,START_MONTH,START_DAY);}
 
+// Diferencia en días entre dos fechas en formato "YYYY-MM-DD"
+function diffDiasFk(fk1, fk2){
+  const d1=new Date(fk1+'T12:00:00');
+  const d2=new Date(fk2+'T12:00:00');
+  return Math.round((d2-d1)/86400000);
+}
+
 // Número de planilla para un día (diff desde inicio) y turno (ti)
 function planillaNum(diffDays, ti){
   if(diffDays===0){
@@ -237,6 +244,9 @@ function ahoraAR(){
 }
 
 // Turno actual
+// Fecha de inicio como string fijo
+const FK_INICIO='2026-06-13';
+
 function turnoActual(){
   const ar=ahoraAR();
   let ti=ar.hora>=6&&ar.hora<14?0:ar.hora>=14&&ar.hora<22?1:2;
@@ -248,11 +258,10 @@ function turnoActual(){
     fk=d.getFullYear()+'-'+String(d.getMonth()+1).padStart(2,'0')+'-'+String(d.getDate()).padStart(2,'0');
     ti=2;
   }
-  const sd=startDate();
-  const day=new Date(fk+'T12:00:00');
-  const diff=Math.round((day-sd)/86400000);
+  // Diff usando strings para evitar problemas de timezone en Date
+  const diff=diffDiasFk(FK_INICIO, fk);
   const num=planillaNum(diff,ti);
-  const fecha=day.toLocaleDateString('es-AR');
+  const fecha=new Date(fk+'T12:00:00').toLocaleDateString('es-AR');
   return{fk,ti,diff,num,nombre:TURNOS[ti],fecha,hora:ar.hhmm};
 }
 
@@ -263,9 +272,7 @@ function fkDisplay(fk){const[y,m,d]=fk.split('-');return`${parseInt(d)}/${parseI
 
 // Planillas de un día (fk) en orden mañana/tarde/noche
 function planillasDia(fk){
-  const sd=startDate();
-  const day=new Date(fk+'T12:00:00');
-  const diff=Math.round((day-sd)/86400000);
+  const diff=diffDiasFk(FK_INICIO,fk);
   return TURNOS.map((_,ti)=>({
     ti, nombre:TURNOS[ti],
     num:planillaNum(diff,ti), // null si no existe
@@ -580,8 +587,7 @@ function renderAdmContent(){
 function renderResumen(){
   if(!admFk)admFk=T.fk;
   const fk=admFk;
-  const sd=startDate(),day=new Date(fk+'T12:00:00');
-  const diff=Math.round((day-sd)/86400000);
+  const diff=diffDiasFk(FK_INICIO,fk);
   const esHoy=fk===T.fk;
   const esPrimerDia=diff<=0;
   const ar=ahoraAR();
