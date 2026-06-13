@@ -626,11 +626,17 @@ function renderResumen(){
   const keys=dayKeys(T.fechaKey);
   const porTurno=TURNOS.map((nom,i)=>{
     const k=keys[i]||'';const s=getSales();let m=0,u=0;
-    if(s[k]?.[cat])for(const[pid,q]of Object.entries(s[k][cat])){const p=(products[cat]||[]).find(x=>x.id===pid);if(p){m+=q*p.precio;u+=q;}}
     const num=k?parseInt(k.replace('T','')):null;
     const cerrado=num?isCerrado(num):false;
     const ci=num?getCierres()[tKey(num)]:null;
-    return{nom,m,u,cerrado,ci,num};
+    // Usar totales del cierre si existe (más confiable)
+    if(ci){m=ci.totalM;u=ci.totalU;}
+    else if(s[k]?.[cat]){
+      for(const[pid,q]of Object.entries(s[k][cat])){
+        const p=(products[cat]||[]).find(x=>x.id===pid);if(p){m+=q*p.precio;u+=q;}
+      }
+    }
+    return{nom,m,u,cerrado,ci,num,k};
   });
   return`
   <div class="metrics">
@@ -639,13 +645,26 @@ function renderResumen(){
     <div class="metric"><div class="metric-val">${totP}</div><div class="metric-lbl">Productos movidos</div></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem">
-    ${porTurno.map(t=>`<div class="metric">
-      <div style="margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:5px">
+    ${porTurno.map(t=>`<div class="metric" style="position:relative">
+      <div style="margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:5px;flex-wrap:wrap">
         <span class="badge badge-${t.nom}">${t.nom}</span>
-        ${t.cerrado?`<span class="badge badge-cerrado"><i class="ti ti-lock" style="font-size:10px"></i></span>`:'<span style="font-size:10px;color:#f59e0b">● abierto</span>'}
+        ${t.num?`<span style="font-size:10px;color:#9ca3af">${planillaStr(t.num)}</span>`:''}
+        ${t.cerrado
+          ?`<span class="badge badge-cerrado"><i class="ti ti-lock" style="font-size:10px"></i> cerrado</span>`
+          :(t.num?'<span style="font-size:10px;color:#f59e0b">● abierto</span>':'<span style="font-size:10px;color:#d1d5db">sin datos</span>')}
       </div>
-      <div class="metric-val" style="font-size:16px">$${t.m.toLocaleString('es-AR')}</div>
+      <div class="metric-val" style="font-size:${t.cerrado?'18':'14'}px;color:${t.cerrado?'#1a1a1a':'#9ca3af'}">
+        ${t.cerrado?'$'+t.m.toLocaleString('es-AR'):t.num?'pendiente':'-'}
+      </div>
       ${t.ci?`<div style="font-size:11px;color:#6b7280;margin-top:2px">${t.ci.user} · ${t.ci.hora}</div>`:''}
+      ${t.cerrado&&t.num?`<div style="margin-top:8px;display:flex;gap:4px;justify-content:center">
+        <button class="btn btn-sm" style="font-size:11px;padding:3px 8px;color:#185FA5;border-color:#185FA5" onclick="reabrirTurno('${t.k}',${t.num})" title="Reabrir turno">
+          <i class="ti ti-lock-open"></i> Reabrir
+        </button>
+        <button class="btn btn-sm" style="font-size:11px;padding:3px 8px;color:#A32D2D;border-color:#A32D2D" onclick="borrarTurno('${t.k}',${t.num})" title="Borrar turno">
+          <i class="ti ti-trash"></i>
+        </button>
+      </div>`:''}
     </div>`).join('')}
   </div>
   <div class="tab-bar">${CATS.map((c,i)=>`<button class="tab ${i===admCat?'active':''}" onclick="admCat=${i};renderAdmContent()">${c}</button>`).join('')}</div>
@@ -824,6 +843,55 @@ function guardarEdicionTurno(tk){
   toast('✓ Correcciones guardadas','success');
   renderAdmContent();
 }
+function reabrirTurno(k, num){
+  const modal=document.getElementById('modal');
+  modal.innerHTML=`<div class="modal-overlay">
+    <div class="modal">
+      <h2><i class="ti ti-lock-open"></i> ¿Reabrir turno?</h2>
+      <p>La planilla <strong>${planillaStr(num)}</strong> volverá a estar abierta.<br>El empleado podrá seguir cargando ventas.</p>
+      <div class="modal-btns">
+        <button class="btn" onclick="document.getElementById('modal').innerHTML=''">Cancelar</button>
+        <button class="btn btn-primary" onclick="confirmarReabrir('${k}')"><i class="ti ti-lock-open"></i> Reabrir</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function confirmarReabrir(k){
+  const c=getCierres();
+  delete c[k];
+  saveCierres(c);
+  document.getElementById('modal').innerHTML='';
+  toast('✓ Turno reabierto','success');
+  renderAdmContent();
+}
+
+function borrarTurno(k, num){
+  const modal=document.getElementById('modal');
+  modal.innerHTML=`<div class="modal-overlay">
+    <div class="modal">
+      <h2 style="color:#A32D2D"><i class="ti ti-trash"></i> ¿Borrar turno?</h2>
+      <p>Esto eliminará <strong>todas las ventas</strong> de la planilla <strong>${planillaStr(num)}</strong> y no se puede deshacer.</p>
+      <div class="modal-btns">
+        <button class="btn" onclick="document.getElementById('modal').innerHTML=''">Cancelar</button>
+        <button class="btn btn-danger" onclick="confirmarBorrar('${k}')"><i class="ti ti-trash"></i> Borrar todo</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function confirmarBorrar(k){
+  const s=getSales();
+  delete s[k];
+  saveSales(s);
+  const c=getCierres();
+  delete c[k];
+  saveCierres(c);
+  document.getElementById('modal').innerHTML='';
+  toast('Turno eliminado','error');
+  renderAdmContent();
+}
+
 function renderStock(){
   const total=Object.values(products).reduce((a,v)=>a+v.length,0);
   return`<div class="card">
