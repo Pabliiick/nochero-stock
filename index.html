@@ -664,17 +664,19 @@ function renderResumen(){
     return{nom,m,u,cerrado,ci,num,k,sinDatos:false};
   });
   // Calcular día anterior y siguiente
+  const FECHA_INICIO = '2026-06-13'; // primer día del sistema
   const dayObj = new Date(fk+'T12:00:00');
   const prev = new Date(dayObj); prev.setDate(prev.getDate()-1);
   const next = new Date(dayObj); next.setDate(next.getDate()+1);
   const prevFk = prev.getFullYear()+'-'+String(prev.getMonth()+1).padStart(2,'0')+'-'+String(prev.getDate()).padStart(2,'0');
   const nextFk = next.getFullYear()+'-'+String(next.getMonth()+1).padStart(2,'0')+'-'+String(next.getDate()).padStart(2,'0');
   const esHoy = fk === getFechaHoyAR();
+  const esPrimerDia = fk <= FECHA_INICIO;
 
   return`
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:1rem;flex-wrap:wrap;gap:8px">
     <div style="display:flex;align-items:center;gap:8px">
-      <button class="btn btn-sm" onclick="admFechaKey='${prevFk}';renderAdmContent()"><i class="ti ti-chevron-left"></i></button>
+      <button class="btn btn-sm" onclick="admFechaKey='${prevFk}';renderAdmContent()" ${esPrimerDia?'disabled':''}><i class="ti ti-chevron-left"></i></button>
       <span style="font-size:15px;font-weight:600">${fechaKeyToDisplay(fk)}</span>
       <button class="btn btn-sm" onclick="admFechaKey='${nextFk}';renderAdmContent()" ${esHoy?'disabled':''}><i class="ti ti-chevron-right"></i></button>
     </div>
