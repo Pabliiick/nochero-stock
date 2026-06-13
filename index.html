@@ -333,7 +333,8 @@ document.addEventListener('DOMContentLoaded',()=>{
 function doLogin(){
   const uid=document.getElementById('sel-user').value;
   const pass=document.getElementById('inp-pass').value;
-  const user=USERS.find(u=>u.id===uid&&u.pass===pass);
+  const customPasses=JSON.parse(localStorage.getItem('nochero_passes')||'{}');
+  const user=USERS.find(u=>u.id===uid&&(customPasses[u.id]||u.pass)===pass);
   if(!user){document.getElementById('login-msg').innerHTML='<div class="alert alert-danger"><i class="ti ti-alert-circle"></i> Usuario o contraseña incorrectos.</div>';return;}
   currentUser=user;document.getElementById('login-msg').innerHTML='';document.getElementById('inp-pass').value='';
   showScreen(user.role==='admin'?'admin':'operador');
@@ -1027,12 +1028,69 @@ function resetPlanilla(){
   toast('Número de planilla reseteado','success');
   setTimeout(()=>location.reload(),1200);
 }
+function getCustomPasses(){return JSON.parse(localStorage.getItem('nochero_passes')||'{}')}
+function saveCustomPasses(p){localStorage.setItem('nochero_passes',JSON.stringify(p))}
+function getUserPass(uid){return getCustomPasses()[uid]||USERS.find(u=>u.id===uid)?.pass||''}
+
 function renderUsuarios(){
+  const passes=getCustomPasses();
   return`<div class="card">
     <div class="section-title"><i class="ti ti-users"></i> Usuarios</div>
-    <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Contraseña</th></tr></thead>
-    <tbody>${USERS.map(u=>`<tr><td><strong>${u.name}</strong></td><td><code>${u.id}</code></td><td><span class="badge badge-${u.role==='admin'?'admin':'operador'}">${u.role}</span></td><td><code>${u.pass}</code></td></tr>`).join('')}</tbody>
-    </table></div>`;
+    <p style="font-size:13px;color:#6b7280;margin-bottom:1rem">Hacé clic en <i class="ti ti-key" style="font-size:13px"></i> para cambiar la contraseña de un usuario.</p>
+    <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Contraseña actual</th><th></th></tr></thead>
+    <tbody>${USERS.map(u=>{
+      const pass=passes[u.id]||u.pass;
+      return`<tr>
+        <td><strong>${u.name}</strong></td>
+        <td><code style="font-size:12px;background:#f3f4f6;padding:2px 6px;border-radius:4px">${u.id}</code></td>
+        <td><span class="badge badge-${u.role==='admin'?'admin':'operador'}">${u.role}</span></td>
+        <td><code id="pass-display-${u.id}" style="font-size:12px;background:#f3f4f6;padding:2px 6px;border-radius:4px">${pass}</code></td>
+        <td>
+          <button class="btn btn-sm" onclick="editarPass('${u.id}','${u.name}')" title="Cambiar contraseña">
+            <i class="ti ti-key"></i>
+          </button>
+        </td>
+      </tr>`;
+    }).join('')}</tbody>
+    </table>
+  </div>`;
+}
+
+function editarPass(uid, nombre){
+  const passActual = getUserPass(uid);
+  const modal=document.getElementById('modal');
+  modal.innerHTML=`<div class="modal-overlay">
+    <div class="modal">
+      <h2><i class="ti ti-key"></i> Cambiar contraseña</h2>
+      <p style="margin-bottom:1rem">Usuario: <strong>${nombre}</strong></p>
+      <div style="text-align:left">
+        <label style="font-size:13px;color:#6b7280;display:block;margin-bottom:4px">Nueva contraseña</label>
+        <input type="text" id="inp-new-pass" value="${passActual}"
+          style="width:100%;padding:9px 12px;border:1px solid #d1d5db;border-radius:8px;font-size:14px;font-family:inherit;margin-bottom:1rem"
+          onkeydown="if(event.key==='Enter')guardarPass('${uid}')">
+      </div>
+      <div class="modal-btns">
+        <button class="btn" onclick="document.getElementById('modal').innerHTML=''">Cancelar</button>
+        <button class="btn btn-primary" onclick="guardarPass('${uid}')"><i class="ti ti-check"></i> Guardar</button>
+      </div>
+    </div>
+  </div>`;
+  setTimeout(()=>{
+    const inp=document.getElementById('inp-new-pass');
+    if(inp){inp.focus();inp.select();}
+  },50);
+}
+
+function guardarPass(uid){
+  const inp=document.getElementById('inp-new-pass');
+  const nueva=(inp?.value||'').trim();
+  if(nueva.length<4){toast('La contraseña debe tener al menos 4 caracteres','error');return;}
+  const p=getCustomPasses();
+  p[uid]=nueva;
+  saveCustomPasses(p);
+  document.getElementById('modal').innerHTML='';
+  toast(`✓ Contraseña de ${USERS.find(u=>u.id===uid)?.name} actualizada`,'success');
+  renderAdmContent();
 }
 
 let toastTimer;
