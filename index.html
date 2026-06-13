@@ -322,7 +322,9 @@ document.addEventListener('DOMContentLoaded',()=>{
   // Hora actual en Argentina (UTC-3)
   const ahoraAR = new Date().toLocaleTimeString('es-AR', {hour:'2-digit', minute:'2-digit', hour12:false, timeZone:'America/Argentina/Buenos_Aires'});
   document.getElementById('login-turno-info').innerHTML =
-    `<strong>Actualmente:</strong> Turno <strong>${T.nombre}</strong> · ${T.fecha} · Planilla <strong>${planillaStr(T.num)}</strong> · ${ahoraAR} hs`;
+    `<div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:2px">${ahoraAR} hs</div>
+     <div style="margin-bottom:2px">Turno <strong>${T.nombre}</strong> · ${T.fecha}</div>
+     <div>Planilla <strong>${planillaStr(T.num)}</strong></div>`;
 });
 
 function doLogin(){
