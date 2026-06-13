@@ -16,6 +16,10 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
 .btn-primary:hover{background:#0C447C}
+.btn-danger{background:#A32D2D;color:#fff;border-color:#A32D2D}
+.btn-danger:hover{background:#791F1F}
+.btn-green{background:#3B6D11;color:#fff;border-color:#3B6D11}
+.btn-green:hover{background:#27500A}
 .btn-sm{padding:5px 10px;font-size:12px}
 .btn-block{width:100%;justify-content:center}
 label{font-size:13px;color:#6b7280;display:block;margin-top:10px;margin-bottom:3px}
@@ -29,6 +33,7 @@ input:focus,select:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,16
 .badge-operador{background:#FEF3C7;color:#92400E}
 .badge-ok{background:#EAF3DE;color:#27500A}
 .badge-out{background:#FCEBEB;color:#A32D2D}
+.badge-cerrado{background:#f3f4f6;color:#6b7280}
 .alert{padding:10px 14px;border-radius:8px;font-size:13px;margin-bottom:1rem;display:flex;align-items:center;gap:8px}
 .alert-info{background:#E6F1FB;color:#0C447C}
 .alert-success{background:#EAF3DE;color:#27500A}
@@ -55,25 +60,27 @@ tr:last-child td{border-bottom:none}
 .search-row{display:flex;gap:8px;margin-bottom:1rem;align-items:center}
 .search-row input{flex:1;margin:0}
 .turno-bar{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:6px}
-
-th.col-venta{background:#185FA5;color:#fff;text-align:center;font-weight:700;font-size:13px}
+th.col-venta{background:#185FA5;color:#fff;text-align:center;font-weight:700}
 td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
 .venta-input-wrap{display:flex;align-items:center;justify-content:center;gap:6px}
 .venta-input{width:64px;padding:7px 6px;font-size:15px;font-weight:600;text-align:center;border:2px solid #185FA5;border-radius:8px;background:#fff;color:#185FA5;outline:none}
-.venta-input:focus{box-shadow:0 0 0 3px rgba(24,95,165,.2);border-color:#0C447C}
-.venta-input:disabled{background:#f3f4f6;border-color:#d1d5db;color:#9ca3af}
+.venta-input:focus{box-shadow:0 0 0 3px rgba(24,95,165,.2)}
 .venta-input.over{border-color:#A32D2D;color:#A32D2D;box-shadow:0 0 0 3px rgba(163,45,45,.15)}
-.btn-registrar{padding:6px 10px;background:#185FA5;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px;transition:background .15s}
+.venta-input:disabled{background:#f3f4f6;border-color:#d1d5db;color:#9ca3af}
+.btn-registrar{padding:6px 10px;background:#185FA5;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px}
 .btn-registrar:hover{background:#0C447C}
 .btn-registrar:disabled{background:#d1d5db;cursor:not-allowed}
-.stock-ok{color:#1a1a1a}
 .stock-out{color:#A32D2D;font-weight:600}
-
+.cierre-box{background:#fff;border:2px solid #3B6D11;border-radius:12px;padding:1.25rem;margin-top:1.5rem;text-align:center}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100}
+.modal{background:#fff;border-radius:16px;padding:1.5rem;max-width:400px;width:90%;text-align:center}
+.modal h2{font-size:18px;font-weight:600;margin-bottom:.5rem}
+.modal p{font-size:13px;color:#6b7280;margin-bottom:1.25rem;line-height:1.5}
+.modal .btns{display:flex;gap:8px;justify-content:center}
 #toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:10px 22px;border-radius:999px;font-size:13px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.success{background:#3B6D11}
 #toast.error{background:#A32D2D}
-
 @media(max-width:600px){
   .header{flex-direction:column;align-items:flex-start}
   th,td{padding:7px 8px;font-size:12px}
@@ -83,6 +90,7 @@ td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
 </head>
 <body>
 <div id="toast"></div>
+<div id="modal"></div>
 
 <!-- LOGIN -->
 <div id="screen-login" class="screen active">
@@ -121,17 +129,18 @@ td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
         <button class="btn btn-sm" onclick="logout()"><i class="ti ti-logout"></i> Salir</button>
       </div>
     </div>
-    <div class="alert alert-info" style="margin-bottom:1rem">
+    <div id="op-cerrado-banner"></div>
+    <div class="alert alert-info">
       <i class="ti ti-info-circle"></i>
-      <span>Ingresá la cantidad vendida en la columna azul <strong>"Cantidad vendida"</strong> y presioná <strong>✓</strong> para confirmar.</span>
+      <span>Ingresá la cantidad vendida en la columna azul <strong>"Cantidad vendida"</strong> y presioná <strong>✓</strong>. Al terminar tu turno, cerralo abajo.</span>
     </div>
-    <div id="op-alert"></div>
     <div class="tab-bar" id="op-tabs"></div>
     <div class="search-row">
       <input type="text" id="op-search" placeholder="🔍 Buscar producto..." oninput="renderOpTable()">
-      <button class="btn btn-sm" onclick="loadAllSheets()" title="Recargar productos"><i class="ti ti-refresh"></i></button>
+      <button class="btn btn-sm" onclick="loadAllSheets()" title="Recargar"><i class="ti ti-refresh"></i></button>
     </div>
     <div id="op-table"></div>
+    <div id="op-cierre"></div>
   </div>
 </div>
 
@@ -152,8 +161,8 @@ td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
     </div>
     <div class="tab-bar">
       <button class="tab active" onclick="showAdm('resumen',this)"><i class="ti ti-chart-bar"></i> Resumen del día</button>
+      <button class="tab" onclick="showAdm('turnos',this)"><i class="ti ti-clock"></i> Turnos cerrados</button>
       <button class="tab" onclick="showAdm('stock',this)"><i class="ti ti-refresh"></i> Sheets</button>
-      <button class="tab" onclick="showAdm('historial',this)"><i class="ti ti-history"></i> Historial</button>
       <button class="tab" onclick="showAdm('usuarios',this)"><i class="ti ti-users"></i> Usuarios</button>
     </div>
     <div id="adm-content"></div>
@@ -162,16 +171,12 @@ td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
 
 <script>
 const SHEET_ID = '1kRZBJo5l51FuVvEsLR8Z_hJV-X2AKHMsW-L-N0NzNBc';
-
-// Turno 001 = tarde del 13/06/2025
-// Tarde = índice 1 (0=mañana, 1=tarde, 2=noche)
-// Arrancamos desde 13/06/2025 turno TARDE = turno #1
-const START_DATE  = new Date(2025, 5, 13); // 13 jun 2025
-const START_TURNO = 1;
-const PLANILLA_INICIO = 19186;
+// Arranque: tarde del 13/06/2026 = Planilla #19186
+const START_DATE    = new Date(2026, 5, 13); // 13 jun 2026
+const START_TURNO   = 1;   // 0=mañana 1=tarde 2=noche
+const PLANILLA_INI  = 19186;
 const TURNOS = ['mañana','tarde','noche'];
- // el primer turno es #001
-const CATS = ['Lubricantes','Minimercado','Gas + Hielo'];
+const CATS   = ['Lubricantes','Minimercado','Gas + Hielo'];
 
 const USERS = [
   {id:'franco',  name:'Franco',  role:'admin',    pass:'franco123'},
@@ -188,42 +193,33 @@ let currentUser=null, currentCat=0, admSection='resumen', admCat=0;
 let products={'Lubricantes':[],'Minimercado':[],'Gas + Hielo':[]};
 let sheetsLoaded=false, sheetsLoading=false;
 
-function getSales(){return JSON.parse(localStorage.getItem('nochero_v3')||'{}')}
-function saveSales(s){localStorage.setItem('nochero_v3',JSON.stringify(s))}
+function getSales(){return JSON.parse(localStorage.getItem('nochero_v4')||'{}')}
+function saveSales(s){localStorage.setItem('nochero_v4',JSON.stringify(s))}
+function getCierres(){return JSON.parse(localStorage.getItem('nochero_cierres')||'{}')}
+function saveCierres(c){localStorage.setItem('nochero_cierres',JSON.stringify(c))}
 
 function getTurno(d){
   d = d || new Date();
   const h = d.getHours();
-  // índice de turno según hora
-  let ti = h >= 6 && h < 14 ? 0 : h >= 14 && h < 22 ? 1 : 2;
-  // si es noche antes de las 6, pertenece al día anterior
+  let ti = h>=6&&h<14 ? 0 : h>=14&&h<22 ? 1 : 2;
   let day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
   if(h < 6){ day = new Date(day); day.setDate(day.getDate()-1); ti = 2; }
-
   const start = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
   const diffDays = Math.round((day - start) / 86400000);
-
-  // turnos transcurridos desde el inicio (tarde del día 0 = turno 1)
-  // día 0: solo tarde(1) y noche(2) → índices 1,2 disponibles
-  // turno num = turnos anteriores al dia 0 en ese dia (START_TURNO) + turnos completos de dias anteriores + turno actual del dia
   let num;
   if(diffDays === 0){
-    // mismo día de inicio
-    num = PLANILLA_INICIO + (ti - START_TURNO);
-    if(num < PLANILLA_INICIO) num = PLANILLA_INICIO;
+    num = PLANILLA_INI + (ti - START_TURNO);
+    if(num < PLANILLA_INI) num = PLANILLA_INI;
   } else {
-    // turnos del día 0 desde START_TURNO hasta fin = (3 - START_TURNO)
-    const turnosDia0 = 3 - START_TURNO;
-    // días completos intermedios
-    const diasCompletos = diffDays - 1;
-    num = PLANILLA_INICIO + turnosDia0 + diasCompletos * 3 + ti;
+    const t0 = 3 - START_TURNO; // turnos en dia 0
+    num = PLANILLA_INI + t0 + (diffDays-1)*3 + ti;
   }
-
   const fk = `${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
-  return { num, nombre: TURNOS[ti], idx: ti, fecha: day.toLocaleDateString('es-AR'), fechaKey: fk, diffDays, ti };
+  return {num, nombre:TURNOS[ti], idx:ti, fecha:day.toLocaleDateString('es-AR'), fechaKey:fk, diffDays, ti};
 }
-
 const T = getTurno();
+
+function planillaStr(n){ return '#' + String(n).padStart(5,'0'); }
 
 function parsePrecio(s){return parseInt((s||'').replace(/[$.\s]/g,'').replace(',',''))||0}
 function parseNum(s){return parseInt(s)||0}
@@ -258,52 +254,49 @@ async function loadAllSheets(){
     products={'Lubricantes':a,'Minimercado':b,'Gas + Hielo':c};
     sheetsLoaded=true;
     toast(`✓ ${a.length+b.length+c.length} productos cargados`,'success');
-    renderOpTable();
+    renderOpTable(); renderCierre();
     if(admSection==='resumen'||admSection==='stock') renderAdmContent();
   }catch(e){toast('Error al cargar. ¿El Sheets es público?','error');}
   sheetsLoading=false;
 }
 
-function turnoKey(n){return`T${n}`}
-
+// Turno keys
+function tKey(n){return `T${n}`}
 function dayKeys(fk){
-  const day = new Date(fk+'T12:00:00');
-  const start = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
-  const diffDays = Math.round((day - start) / 86400000);
-  const keys = [];
-  for(let i=0; i<3; i++){
+  const day=new Date(fk+'T12:00:00');
+  const start=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
+  const diff=Math.round((day-start)/86400000);
+  const keys=[];
+  for(let i=0;i<3;i++){
     let num;
-    if(diffDays === 0){
-      const ti = START_TURNO + i;
-      if(ti > 2) break;
-      num = PLANILLA_INICIO + i;
+    if(diff===0){
+      const ti=START_TURNO+i; if(ti>2)break;
+      num=PLANILLA_INI+i;
     } else {
-      const turnosDia0 = 3 - START_TURNO;
-      num = PLANILLA_INICIO + turnosDia0 + (diffDays-1)*3 + i;
+      const t0=3-START_TURNO;
+      num=PLANILLA_INI+t0+(diff-1)*3+i;
     }
-    keys.push(`T${num}`);
+    keys.push(tKey(num));
   }
   return keys;
 }
 
-function getSalesTurno(cat,id){const s=getSales();return(s[turnoKey(T.num)]?.[cat]?.[id])||0}
-function getSalesDay(cat,id,fk){
-  const s=getSales();
-  return dayKeys(fk||T.fechaKey).reduce((a,k)=>a+((s[k]?.[cat]?.[id])||0),0);
-}
-function getStock(p){return p.stockInicial - getSalesDay(p.categoria, p.id)}
+function getSalesTurno(cat,id){const s=getSales();return(s[tKey(T.num)]?.[cat]?.[id])||0}
+function getSalesDay(cat,id,fk){const s=getSales();return dayKeys(fk||T.fechaKey).reduce((a,k)=>a+((s[k]?.[cat]?.[id])||0),0)}
+function getStock(p){return p.stockInicial-getSalesDay(p.categoria,p.id)}
 function recordSale(cat,id,qty){
-  const s=getSales(),k=turnoKey(T.num);
+  const s=getSales(),k=tKey(T.num);
   if(!s[k])s[k]={};if(!s[k][cat])s[k][cat]={};
   s[k][cat][id]=(s[k][cat][id]||0)+qty;saveSales(s);
 }
+
+function isTurnoCerrado(num){return !!getCierres()[tKey(num)]}
 
 // LOGIN
 document.addEventListener('DOMContentLoaded',()=>{
   const sel=document.getElementById('sel-user');
   USERS.forEach(u=>{const o=document.createElement('option');o.value=u.id;o.textContent=u.name+(u.role==='admin'?' (Admin)':'');sel.appendChild(o);});
-  const numStr = String(T.num).padStart(3,'0');
-  document.getElementById('login-turno-info').textContent=`Turno ${T.nombre} · ${T.fecha} · Planilla #${numStr}`;
+  document.getElementById('login-turno-info').textContent=`Turno ${T.nombre} · ${T.fecha} · Planilla ${planillaStr(T.num)}`;
 });
 
 function doLogin(){
@@ -328,14 +321,14 @@ function showScreen(name){
 
 // OPERADOR
 function initOp(){
-  const numStr = String(T.num).padStart(3,'0');
   document.getElementById('op-badge-turno').textContent='Turno '+T.nombre;
   document.getElementById('op-badge-turno').className='badge badge-'+T.nombre;
   document.getElementById('op-fecha').textContent=T.fecha;
-  document.getElementById('op-num').textContent='Planilla #'+numStr;
+  document.getElementById('op-num').textContent='Planilla '+planillaStr(T.num);
   document.getElementById('op-user-badge').textContent=currentUser.name;
-  buildOpTabs(); renderOpTable();
+  buildOpTabs(); renderOpTable(); renderCierre();
 }
+
 function buildOpTabs(){
   document.getElementById('op-tabs').innerHTML=CATS.map((c,i)=>`<button class="tab ${i===currentCat?'active':''}" onclick="currentCat=${i};buildOpTabs();renderOpTable()">${c}</button>`).join('');
 }
@@ -345,12 +338,11 @@ function renderOpTable(){
   const search=(document.getElementById('op-search')?.value||'').toLowerCase();
   const prods=(products[cat]||[]).filter(p=>p.nombre&&(!search||p.nombre.toLowerCase().includes(search)));
   const el=document.getElementById('op-table');
-  if(!sheetsLoaded){
-    el.innerHTML='<div class="alert alert-warning"><i class="ti ti-loader"></i> Cargando productos... un momento.</div>';return;
-  }
-  if(!prods.length){
-    el.innerHTML='<div class="alert alert-info"><i class="ti ti-info-circle"></i> No se encontraron productos.</div>';return;
-  }
+  const cerrado=isTurnoCerrado(T.num);
+
+  if(!sheetsLoaded){el.innerHTML='<div class="alert alert-warning"><i class="ti ti-loader"></i> Cargando productos...</div>';return;}
+  if(!prods.length){el.innerHTML='<div class="alert alert-info"><i class="ti ti-info-circle"></i> Sin productos.</div>';return;}
+
   let html=`<div class="table-wrap"><table>
     <thead><tr>
       <th style="min-width:180px">Producto</th>
@@ -359,27 +351,28 @@ function renderOpTable(){
       <th class="col-venta">✏ Cantidad vendida</th>
       <th>Vendido este turno</th>
     </tr></thead><tbody>`;
+
   for(const p of prods){
     const sf=getStock(p);
     const ts=getSalesTurno(cat,p.id);
     const out=sf<=0;
-    const pid=p.id.replace(/'/g,"\\'");
-    const pnombre=p.nombre.replace(/'/g,"\\'").replace(/"/g,'\\"');
+    const pid=p.id;
+    const pn=p.nombre.replace(/'/g,"\\'").replace(/"/g,'\\"');
     html+=`<tr>
       <td><strong>${p.nombre}</strong>${out?` <span class="badge badge-out">Sin stock</span>`:''}</td>
       <td>$${p.precio.toLocaleString('es-AR')}</td>
-      <td class="${out?'stock-out':'stock-ok'}">${sf}</td>
+      <td class="${out?'stock-out':''}">${sf}</td>
       <td class="col-venta">
         <div class="venta-input-wrap">
-          <input type="number" class="venta-input" id="q_${p.id}" min="0" max="${sf}" value="0"
-            ${out?'disabled':''}
+          <input type="number" class="venta-input" id="q_${pid}" min="0" max="${sf}" value="0"
+            ${out||cerrado?'disabled':''}
             oninput="checkOver(this,${sf})"
-            onkeydown="if(event.key==='Enter')doSale('${cat}','${pid}','${pnombre}',${p.precio})">
-          <button class="btn-registrar" id="btn_${p.id}" ${out?'disabled':''} onclick="doSale('${cat}','${pid}','${pnombre}',${p.precio})">
+            onkeydown="if(event.key==='Enter')doSale('${cat}','${pid}','${pn}',${p.precio})">
+          <button class="btn-registrar" id="btn_${pid}" ${out||cerrado?'disabled':''} onclick="doSale('${cat}','${pid}','${pn}',${p.precio})">
             <i class="ti ti-check"></i> ✓
           </button>
         </div>
-        <div id="warn_${p.id}" style="font-size:11px;color:#A32D2D;margin-top:3px;display:none">
+        <div id="warn_${pid}" style="font-size:11px;color:#A32D2D;margin-top:3px;display:none">
           <i class="ti ti-alert-triangle"></i> Supera el stock disponible (${sf})
         </div>
       </td>
@@ -390,45 +383,111 @@ function renderOpTable(){
   el.innerHTML=html;
 }
 
-function checkOver(inp, maxStock){
-  const qty = parseInt(inp.value)||0;
-  const id = inp.id.replace('q_','');
-  const warn = document.getElementById('warn_'+id);
-  const btn = document.getElementById('btn_'+id);
-  if(qty > maxStock){
-    inp.classList.add('over');
-    if(warn) warn.style.display='block';
-    if(btn) btn.disabled=true;
-  } else {
-    inp.classList.remove('over');
-    if(warn) warn.style.display='none';
-    if(btn) btn.disabled=false;
-  }
+function checkOver(inp,max){
+  const qty=parseInt(inp.value)||0;
+  const id=inp.id.replace('q_','');
+  const warn=document.getElementById('warn_'+id);
+  const btn=document.getElementById('btn_'+id);
+  if(qty>max){inp.classList.add('over');if(warn)warn.style.display='block';if(btn)btn.disabled=true;}
+  else{inp.classList.remove('over');if(warn)warn.style.display='none';if(btn)btn.disabled=false;}
 }
 
 function doSale(cat,id,nombre,precio){
+  if(isTurnoCerrado(T.num)){toast('El turno está cerrado','error');return;}
   const inp=document.getElementById('q_'+id);
   const qty=parseInt(inp?.value)||0;
   if(qty<=0){toast('Ingresá una cantidad mayor a 0','error');return;}
   const p=products[cat].find(x=>x.id===id);
   if(!p)return;
-  const sf=getStock(p);
-  if(qty>sf){toast(`Stock insuficiente (disponible: ${sf})`,'error');return;}
+  if(qty>getStock(p)){toast(`Stock insuficiente (disponible: ${getStock(p)})`,'error');return;}
   recordSale(cat,id,qty);
   if(inp){inp.value=0;inp.classList.remove('over');}
-  const warn=document.getElementById('warn_'+id);
-  if(warn) warn.style.display='none';
+  const warn=document.getElementById('warn_'+id);if(warn)warn.style.display='none';
   toast(`✓ ${qty} × ${nombre}  →  $${(qty*precio).toLocaleString('es-AR')}`,'success');
   renderOpTable();
 }
 
+function renderCierre(){
+  const el=document.getElementById('op-cierre');if(!el)return;
+  const cerrado=isTurnoCerrado(T.num);
+  const c=getCierres()[tKey(T.num)];
+
+  // banner si está cerrado
+  const banner=document.getElementById('op-cerrado-banner');
+  if(banner){
+    banner.innerHTML=cerrado?`<div class="alert alert-warning" style="margin-bottom:1rem"><i class="ti ti-lock"></i> <strong>Turno cerrado</strong> — Solo lectura. El turno ${T.nombre} ${planillaStr(T.num)} fue cerrado${c?' por '+c.user+' a las '+c.hora:''}.  </div>`:'';
+  }
+
+  if(cerrado){
+    el.innerHTML=`<div class="cierre-box" style="border-color:#d1d5db">
+      <div style="font-size:15px;font-weight:600;color:#6b7280"><i class="ti ti-lock"></i> Turno cerrado</div>
+      <div style="font-size:13px;color:#9ca3af;margin-top:4px">Cerrado${c?' por '+c.user+' a las '+c.hora:''}</div>
+    </div>`;
+    return;
+  }
+
+  // Calcular totales del turno
+  const s=getSales(),k=tKey(T.num);
+  let totalU=0,totalM=0;
+  for(const cat of CATS){
+    if(!s[k]?.[cat])continue;
+    for(const[pid,qty]of Object.entries(s[k][cat])){
+      const p=Object.values(products).flat().find(x=>x.id===pid);
+      if(p){totalU+=qty;totalM+=qty*p.precio;}
+    }
+  }
+
+  el.innerHTML=`<div class="cierre-box">
+    <div style="font-size:15px;font-weight:600;color:#27500A;margin-bottom:.5rem"><i class="ti ti-checks"></i> Cerrar turno ${planillaStr(T.num)}</div>
+    <div style="font-size:13px;color:#6b7280;margin-bottom:1rem">
+      ${totalU>0?`Registraste <strong>${totalU} unidades</strong> por un total de <strong>$${totalM.toLocaleString('es-AR')}</strong>.`:'No registraste ventas en este turno.'}
+    </div>
+    <button class="btn btn-green" onclick="confirmarCierre()"><i class="ti ti-lock"></i> Cerrar y enviar a Franco</button>
+  </div>`;
+}
+
+function confirmarCierre(){
+  const s=getSales(),k=tKey(T.num);
+  let totalU=0,totalM=0,detalle=[];
+  for(const cat of CATS){
+    if(!s[k]?.[cat])continue;
+    for(const[pid,qty]of Object.entries(s[k][cat])){
+      const p=Object.values(products).flat().find(x=>x.id===pid);
+      if(p){totalU+=qty;totalM+=qty*p.precio;detalle.push(`${p.nombre}: ${qty}`);}
+    }
+  }
+  const modal=document.getElementById('modal');
+  modal.innerHTML=`<div class="modal-overlay">
+    <div class="modal">
+      <h2><i class="ti ti-lock"></i> ¿Cerrar turno?</h2>
+      <p>Planilla <strong>${planillaStr(T.num)}</strong> · Turno <strong>${T.nombre}</strong> · ${T.fecha}<br><br>
+      <strong>${totalU} unidades vendidas</strong><br>Total: <strong>$${totalM.toLocaleString('es-AR')}</strong><br><br>
+      Una vez cerrado no podés agregar más ventas a este turno.</p>
+      <div class="btns">
+        <button class="btn" onclick="document.getElementById('modal').innerHTML=''">Cancelar</button>
+        <button class="btn btn-green" onclick="ejecutarCierre(${totalU},${totalM})"><i class="ti ti-check"></i> Confirmar cierre</button>
+      </div>
+    </div>
+  </div>`;
+}
+
+function ejecutarCierre(totalU,totalM){
+  const ahora=new Date();
+  const hora=ahora.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
+  const c=getCierres();
+  c[tKey(T.num)]={user:currentUser.name,hora,fecha:T.fecha,planilla:T.num,totalU,totalM};
+  saveCierres(c);
+  document.getElementById('modal').innerHTML='';
+  toast('✓ Turno cerrado correctamente','success');
+  renderOpTable(); renderCierre();
+}
+
 // ADMIN
 function initAdm(){
-  const numStr=String(T.num).padStart(3,'0');
   document.getElementById('adm-badge-turno').textContent='Turno '+T.nombre;
   document.getElementById('adm-badge-turno').className='badge badge-'+T.nombre;
   document.getElementById('adm-fecha').textContent=T.fecha;
-  document.getElementById('adm-num').textContent='Planilla #'+numStr;
+  document.getElementById('adm-num').textContent='Planilla '+planillaStr(T.num);
   document.getElementById('adm-user-badge').textContent=currentUser.name;
   renderAdmContent();
 }
@@ -441,10 +500,11 @@ function showAdm(name,btn){
 function renderAdmContent(){
   const el=document.getElementById('adm-content');if(!el)return;
   if(admSection==='resumen') el.innerHTML=renderResumen();
+  else if(admSection==='turnos') el.innerHTML=renderTurnos();
   else if(admSection==='stock') el.innerHTML=renderStock();
-  else if(admSection==='historial') el.innerHTML=renderHistorial();
   else el.innerHTML=renderUsuarios();
 }
+
 function renderResumen(){
   const cat=CATS[admCat];
   const rows=(products[cat]||[]).filter(p=>p.nombre).map(p=>{
@@ -454,12 +514,14 @@ function renderResumen(){
   const totU=rows.reduce((a,r)=>a+r.ventas,0);
   const totM=rows.reduce((a,r)=>a+r.monto,0);
   const totP=rows.filter(r=>r.ventas>0).length;
+  const keys=dayKeys(T.fechaKey);
   const porTurno=TURNOS.map((nom,i)=>{
-    const keys=dayKeys(T.fechaKey);
-    const k=keys[i]||'';
-    const s=getSales();let m=0;
-    if(s[k]?.[cat])for(const[pid,q]of Object.entries(s[k][cat])){const p=(products[cat]||[]).find(x=>x.id===pid);if(p)m+=q*p.precio;}
-    return{nom,m};
+    const k=keys[i]||''; const s=getSales();let m=0,u=0;
+    if(s[k]?.[cat])for(const[pid,q]of Object.entries(s[k][cat])){const p=(products[cat]||[]).find(x=>x.id===pid);if(p){m+=q*p.precio;u+=q;}}
+    const numPlan=k?parseInt(k.replace('T','')):null;
+    const cerrado=numPlan?isTurnoCerrado(numPlan):false;
+    const cierreInfo=numPlan?getCierres()[tKey(numPlan)]:null;
+    return{nom,m,u,cerrado,cierreInfo,numPlan};
   });
   return`
   <div class="metrics">
@@ -468,7 +530,14 @@ function renderResumen(){
     <div class="metric"><div class="metric-val">${totP}</div><div class="metric-lbl">Productos movidos</div></div>
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem">
-    ${porTurno.map(t=>`<div class="metric"><div style="margin-bottom:4px"><span class="badge badge-${t.nom}">${t.nom}</span></div><div class="metric-val" style="font-size:16px">$${t.m.toLocaleString('es-AR')}</div></div>`).join('')}
+    ${porTurno.map(t=>`<div class="metric">
+      <div style="margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:6px">
+        <span class="badge badge-${t.nom}">${t.nom}</span>
+        ${t.cerrado?`<span class="badge badge-cerrado"><i class="ti ti-lock" style="font-size:10px"></i> cerrado</span>`:''}
+      </div>
+      <div class="metric-val" style="font-size:16px">$${t.m.toLocaleString('es-AR')}</div>
+      ${t.cierreInfo?`<div style="font-size:11px;color:#6b7280;margin-top:2px">${t.cierreInfo.user} · ${t.cierreInfo.hora}</div>`:''}
+    </div>`).join('')}
   </div>
   <div class="tab-bar">${CATS.map((c,i)=>`<button class="tab ${i===admCat?'active':''}" onclick="admCat=${i};renderAdmContent()">${c}</button>`).join('')}</div>
   <div class="table-wrap"><table>
@@ -483,11 +552,30 @@ function renderResumen(){
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
+
+function renderTurnos(){
+  const c=getCierres();
+  const items=Object.entries(c).sort((a,b)=>b[1].planilla-a[1].planilla);
+  if(!items.length)return`<div class="alert alert-info"><i class="ti ti-info-circle"></i> Aún no hay turnos cerrados.</div>`;
+  return`<div class="card">
+    <div class="section-title"><i class="ti ti-clock"></i> Turnos cerrados</div>
+    <table><thead><tr><th>Planilla</th><th>Fecha</th><th>Cerrado por</th><th>Hora</th><th>Unidades</th><th>Total</th></tr></thead>
+    <tbody>${items.map(([k,v])=>`<tr>
+      <td><strong>${planillaStr(v.planilla)}</strong></td>
+      <td>${v.fecha}</td>
+      <td>${v.user}</td>
+      <td>${v.hora}</td>
+      <td>${v.totalU}</td>
+      <td>$${v.totalM.toLocaleString('es-AR')}</td>
+    </tr>`).join('')}</tbody></table>
+  </div>`;
+}
+
 function renderStock(){
   const total=Object.values(products).reduce((a,v)=>a+v.length,0);
   return`<div class="card">
     <div class="section-title"><i class="ti ti-refresh"></i> Recargar desde Google Sheets</div>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:1rem">Trae precios y stock inicial actualizados del Sheets.</p>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:1rem">Trae precios y stock inicial actualizados.</p>
     <button class="btn btn-primary" onclick="loadAllSheets()"><i class="ti ti-refresh"></i> Recargar ahora</button>
     ${sheetsLoaded?`<div class="alert alert-success" style="margin-top:1rem"><i class="ti ti-check"></i> ${total} productos cargados.</div>`:''}
   </div>
@@ -496,41 +584,13 @@ function renderStock(){
     <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit" target="_blank" class="btn"><i class="ti ti-table"></i> Abrir Google Sheets</a>
   </div>`;
 }
-function renderHistorial(){
-  const s=getSales();
-  const fechas={};
-  for(const k of Object.keys(s)){
-    const num=parseInt(k.replace('T',''));if(isNaN(num))continue;
-    // reconstruir fecha desde número de turno
-    // turno 1 y 2 = dia 0 (13/06), turno 3+ = calcular
-    let diffDays, d;
-    const turnosDia0 = 3 - START_TURNO;
-    const relNum = num - PLANILLA_INICIO;
-    if(relNum <= turnosDia0){
-      diffDays=0;
-    } else {
-      diffDays = Math.ceil((relNum - turnosDia0) / 3);
-    }
-    d=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
-    d.setDate(d.getDate()+diffDays);
-    const fstr=d.toLocaleDateString('es-AR');
-    if(!fechas[fstr])fechas[fstr]={keys:[],d};
-    fechas[fstr].keys.push(k);
-  }
-  const ord=Object.entries(fechas).sort((a,b)=>b[1].d-a[1].d);
-  if(!ord.length)return`<div class="alert alert-info"><i class="ti ti-info-circle"></i> Sin ventas registradas aún.</div>`;
-  return ord.map(([fstr,{keys}])=>{
-    let m=0,u=0;
-    for(const k of keys)for(const cat of CATS){if(!s[k]?.[cat])continue;for(const[pid,q]of Object.entries(s[k][cat])){const p=(products[cat]||[]).find(x=>x.id===pid);if(p){m+=q*p.precio;u+=q;}}}
-    return`<div class="card" style="display:flex;justify-content:space-between;align-items:center"><strong>${fstr}</strong><span style="font-size:13px;color:#6b7280">${u} uds · $${m.toLocaleString('es-AR')}</span></div>`;
-  }).join('');
-}
+
 function renderUsuarios(){
   return`<div class="card">
     <div class="section-title"><i class="ti ti-users"></i> Usuarios</div>
-    <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Contraseña</th></tr></thead><tbody>
-    ${USERS.map(u=>`<tr><td><strong>${u.name}</strong></td><td><code>${u.id}</code></td><td><span class="badge badge-${u.role==='admin'?'admin':'operador'}">${u.role}</span></td><td><code>${u.pass}</code></td></tr>`).join('')}
-    </tbody></table>
+    <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Contraseña</th></tr></thead>
+    <tbody>${USERS.map(u=>`<tr><td><strong>${u.name}</strong></td><td><code>${u.id}</code></td><td><span class="badge badge-${u.role==='admin'?'admin':'operador'}">${u.role}</span></td><td><code>${u.pass}</code></td></tr>`).join('')}</tbody>
+    </table>
   </div>`;
 }
 
