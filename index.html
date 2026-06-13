@@ -10,14 +10,12 @@
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:#f0f2f5;min-height:100vh;color:#1a1a1a}
 .screen{display:none}.screen.active{display:block}
 .card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:1rem 1.25rem;margin-bottom:1rem}
-.container{max-width:980px;margin:0 auto;padding:1rem}
+.container{max-width:980px;margin:0 auto;padding:1rem;padding-bottom:120px}
 .btn{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;border:1px solid #d1d5db;border-radius:8px;background:#fff;color:#1a1a1a;cursor:pointer;font-size:14px;font-family:inherit;transition:background .15s}
 .btn:hover{background:#f3f4f6}
 .btn:disabled{opacity:.4;cursor:not-allowed}
 .btn-primary{background:#185FA5;color:#fff;border-color:#185FA5}
 .btn-primary:hover{background:#0C447C}
-.btn-danger{background:#A32D2D;color:#fff;border-color:#A32D2D}
-.btn-danger:hover{background:#791F1F}
 .btn-green{background:#3B6D11;color:#fff;border-color:#3B6D11}
 .btn-green:hover{background:#27500A}
 .btn-sm{padding:5px 10px;font-size:12px}
@@ -45,7 +43,7 @@ input:focus,select:focus{border-color:#185FA5;box-shadow:0 0 0 3px rgba(24,95,16
 .table-wrap{overflow-x:auto;border-radius:12px;border:1px solid #e5e7eb}
 table{width:100%;border-collapse:collapse;font-size:13px;background:#fff}
 th{text-align:left;padding:10px 12px;color:#6b7280;border-bottom:1px solid #e5e7eb;font-weight:500;white-space:nowrap;background:#f9fafb}
-td{padding:9px 12px;border-bottom:1px solid #f3f4f6;color:#1a1a1a;vertical-align:middle}
+td{padding:8px 12px;border-bottom:1px solid #f3f4f6;color:#1a1a1a;vertical-align:middle}
 tr:last-child td{border-bottom:none}
 .header{display:flex;align-items:center;justify-content:space-between;margin-bottom:1.25rem;padding:1rem 1.25rem;background:#fff;border-radius:12px;border:1px solid #e5e7eb;flex-wrap:wrap;gap:10px}
 .logo{font-size:18px;font-weight:600}
@@ -60,31 +58,57 @@ tr:last-child td{border-bottom:none}
 .search-row{display:flex;gap:8px;margin-bottom:1rem;align-items:center}
 .search-row input{flex:1;margin:0}
 .turno-bar{font-size:12px;color:#6b7280;display:flex;align-items:center;gap:6px}
+
+/* COLUMNA AZUL - agregar venta */
 th.col-venta{background:#185FA5;color:#fff;text-align:center;font-weight:700}
 td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
-.venta-input-wrap{display:flex;align-items:center;justify-content:center;gap:6px}
-.venta-input{width:64px;padding:7px 6px;font-size:15px;font-weight:600;text-align:center;border:2px solid #185FA5;border-radius:8px;background:#fff;color:#185FA5;outline:none}
+.venta-wrap{display:flex;align-items:center;justify-content:center;gap:5px}
+.venta-input{width:60px;padding:6px 5px;font-size:14px;font-weight:600;text-align:center;border:2px solid #185FA5;border-radius:8px;background:#fff;color:#185FA5;outline:none;font-family:inherit}
 .venta-input:focus{box-shadow:0 0 0 3px rgba(24,95,165,.2)}
 .venta-input.over{border-color:#A32D2D;color:#A32D2D;box-shadow:0 0 0 3px rgba(163,45,45,.15)}
 .venta-input:disabled{background:#f3f4f6;border-color:#d1d5db;color:#9ca3af}
-.btn-registrar{padding:6px 10px;background:#185FA5;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:12px;font-weight:600;display:flex;align-items:center;gap:4px}
-.btn-registrar:hover{background:#0C447C}
-.btn-registrar:disabled{background:#d1d5db;cursor:not-allowed}
+.btn-add{padding:5px 9px;background:#185FA5;color:#fff;border:none;border-radius:7px;cursor:pointer;font-size:13px;display:flex;align-items:center;gap:3px;font-family:inherit}
+.btn-add:hover{background:#0C447C}
+.btn-add:disabled{background:#d1d5db;cursor:not-allowed}
+
+/* COLUMNA VERDE - total turno editable */
+th.col-total{background:#3B6D11;color:#fff;text-align:center;font-weight:700}
+td.col-total{background:#f0fce8;text-align:center;padding:6px 8px}
+.total-display{display:inline-flex;align-items:center;gap:6px;cursor:pointer}
+.total-num{font-size:14px;font-weight:700;color:#27500A;min-width:20px;text-align:center}
+.total-edit-wrap{display:flex;align-items:center;gap:5px;justify-content:center}
+.total-input{width:60px;padding:5px;font-size:14px;font-weight:600;text-align:center;border:2px solid #3B6D11;border-radius:7px;color:#27500A;outline:none;font-family:inherit}
+.total-input:focus{box-shadow:0 0 0 3px rgba(59,109,17,.2)}
+.btn-save{padding:5px 8px;background:#3B6D11;color:#fff;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit}
+.btn-save:hover{background:#27500A}
+.btn-cancel-edit{padding:5px 8px;background:#f3f4f6;color:#6b7280;border:none;border-radius:6px;cursor:pointer;font-size:12px;font-family:inherit}
+.edit-hint{font-size:10px;color:#6b7280;margin-top:2px}
+
 .stock-out{color:#A32D2D;font-weight:600}
-.cierre-box{background:#fff;border:2px solid #3B6D11;border-radius:12px;padding:1.25rem;margin-top:1.5rem;text-align:center}
-.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.45);display:flex;align-items:center;justify-content:center;z-index:100}
+
+/* BARRA DE CIERRE FIJA ABAJO */
+.cierre-bar{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:2px solid #3B6D11;padding:12px 1rem;display:flex;align-items:center;justify-content:space-between;gap:12px;z-index:50;flex-wrap:wrap}
+.cierre-bar.cerrado{border-top-color:#d1d5db;background:#f9fafb}
+.cierre-info{font-size:13px;color:#1a1a1a}
+.cierre-info strong{color:#27500A}
+.cierre-info.cerrado-txt{color:#6b7280}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);display:flex;align-items:center;justify-content:center;z-index:200}
 .modal{background:#fff;border-radius:16px;padding:1.5rem;max-width:400px;width:90%;text-align:center}
 .modal h2{font-size:18px;font-weight:600;margin-bottom:.5rem}
-.modal p{font-size:13px;color:#6b7280;margin-bottom:1.25rem;line-height:1.5}
-.modal .btns{display:flex;gap:8px;justify-content:center}
-#toast{position:fixed;bottom:1.5rem;left:50%;transform:translateX(-50%) translateY(80px);background:#1a1a1a;color:#fff;padding:10px 22px;border-radius:999px;font-size:13px;opacity:0;transition:all .3s;z-index:999;pointer-events:none;white-space:nowrap}
+.modal p{font-size:13px;color:#6b7280;margin-bottom:1.25rem;line-height:1.6}
+.modal-btns{display:flex;gap:8px;justify-content:center}
+
+#toast{position:fixed;bottom:80px;left:50%;transform:translateX(-50%) translateY(40px);background:#1a1a1a;color:#fff;padding:10px 22px;border-radius:999px;font-size:13px;opacity:0;transition:all .3s;z-index:300;pointer-events:none;white-space:nowrap}
 #toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
 #toast.success{background:#3B6D11}
 #toast.error{background:#A32D2D}
+
 @media(max-width:600px){
   .header{flex-direction:column;align-items:flex-start}
-  th,td{padding:7px 8px;font-size:12px}
-  .venta-input{width:52px;font-size:14px}
+  th,td{padding:6px 8px;font-size:12px}
+  .venta-input,.total-input{width:50px;font-size:13px}
+  .cierre-bar{flex-direction:column;align-items:flex-start;gap:8px}
 }
 </style>
 </head>
@@ -132,7 +156,10 @@ td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
     <div id="op-cerrado-banner"></div>
     <div class="alert alert-info">
       <i class="ti ti-info-circle"></i>
-      <span>Ingresá la cantidad vendida en la columna azul <strong>"Cantidad vendida"</strong> y presioná <strong>✓</strong>. Al terminar tu turno, cerralo abajo.</span>
+      <div>
+        <strong>Columna azul</strong>: ingresá lo que vendiste y presioná ✓ para sumar.<br>
+        <strong>Columna verde</strong>: tocá el número si necesitás corregir el total del turno.
+      </div>
     </div>
     <div class="tab-bar" id="op-tabs"></div>
     <div class="search-row">
@@ -140,7 +167,13 @@ td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
       <button class="btn btn-sm" onclick="loadAllSheets()" title="Recargar"><i class="ti ti-refresh"></i></button>
     </div>
     <div id="op-table"></div>
-    <div id="op-cierre"></div>
+  </div>
+  <!-- BARRA FIJA DE CIERRE -->
+  <div id="cierre-bar" class="cierre-bar">
+    <div id="cierre-info" class="cierre-info"></div>
+    <button id="cierre-btn" class="btn btn-green" onclick="confirmarCierre()">
+      <i class="ti ti-lock"></i> Cerrar turno y enviar a Franco
+    </button>
   </div>
 </div>
 
@@ -170,11 +203,10 @@ td.col-venta{background:#EBF4FF;text-align:center;padding:6px 8px}
 </div>
 
 <script>
-const SHEET_ID = '1kRZBJo5l51FuVvEsLR8Z_hJV-X2AKHMsW-L-N0NzNBc';
-// Arranque: tarde del 13/06/2026 = Planilla #19186
-const START_DATE    = new Date(2026, 5, 13); // 13 jun 2026
-const START_TURNO   = 1;   // 0=mañana 1=tarde 2=noche
-const PLANILLA_INI  = 19186;
+const SHEET_ID   = '1kRZBJo5l51FuVvEsLR8Z_hJV-X2AKHMsW-L-N0NzNBc';
+const START_DATE = new Date(2026,5,13);
+const START_TI   = 1; // tarde
+const PLANILLA_INI = 19186;
 const TURNOS = ['mañana','tarde','noche'];
 const CATS   = ['Lubricantes','Minimercado','Gas + Hielo'];
 
@@ -189,45 +221,38 @@ const USERS = [
   {id:'agus',    name:'Agus',    role:'operador', pass:'agus123'},
 ];
 
-let currentUser=null, currentCat=0, admSection='resumen', admCat=0;
+let currentUser=null,currentCat=0,admSection='resumen',admCat=0;
 let products={'Lubricantes':[],'Minimercado':[],'Gas + Hielo':[]};
-let sheetsLoaded=false, sheetsLoading=false;
+let sheetsLoaded=false,sheetsLoading=false;
 
 function getSales(){return JSON.parse(localStorage.getItem('nochero_v4')||'{}')}
 function saveSales(s){localStorage.setItem('nochero_v4',JSON.stringify(s))}
 function getCierres(){return JSON.parse(localStorage.getItem('nochero_cierres')||'{}')}
 function saveCierres(c){localStorage.setItem('nochero_cierres',JSON.stringify(c))}
+function planillaStr(n){return '#'+String(n).padStart(5,'0')}
 
 function getTurno(d){
-  d = d || new Date();
-  const h = d.getHours();
-  let ti = h>=6&&h<14 ? 0 : h>=14&&h<22 ? 1 : 2;
-  let day = new Date(d.getFullYear(), d.getMonth(), d.getDate());
-  if(h < 6){ day = new Date(day); day.setDate(day.getDate()-1); ti = 2; }
-  const start = new Date(START_DATE.getFullYear(), START_DATE.getMonth(), START_DATE.getDate());
-  const diffDays = Math.round((day - start) / 86400000);
+  d=d||new Date();
+  const h=d.getHours();
+  let ti=h>=6&&h<14?0:h>=14&&h<22?1:2;
+  let day=new Date(d.getFullYear(),d.getMonth(),d.getDate());
+  if(h<6){day=new Date(day);day.setDate(day.getDate()-1);ti=2;}
+  const start=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
+  const diff=Math.round((day-start)/86400000);
   let num;
-  if(diffDays === 0){
-    num = PLANILLA_INI + (ti - START_TURNO);
-    if(num < PLANILLA_INI) num = PLANILLA_INI;
-  } else {
-    const t0 = 3 - START_TURNO; // turnos en dia 0
-    num = PLANILLA_INI + t0 + (diffDays-1)*3 + ti;
-  }
-  const fk = `${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
-  return {num, nombre:TURNOS[ti], idx:ti, fecha:day.toLocaleDateString('es-AR'), fechaKey:fk, diffDays, ti};
+  if(diff===0){num=PLANILLA_INI+(ti-START_TI);if(num<PLANILLA_INI)num=PLANILLA_INI;}
+  else{const t0=3-START_TI;num=PLANILLA_INI+t0+(diff-1)*3+ti;}
+  const fk=`${day.getFullYear()}-${String(day.getMonth()+1).padStart(2,'0')}-${String(day.getDate()).padStart(2,'0')}`;
+  return{num,nombre:TURNOS[ti],idx:ti,fecha:day.toLocaleDateString('es-AR'),fechaKey:fk,diff,ti};
 }
-const T = getTurno();
-
-function planillaStr(n){ return '#' + String(n).padStart(5,'0'); }
+const T=getTurno();
 
 function parsePrecio(s){return parseInt((s||'').replace(/[$.\s]/g,'').replace(',',''))||0}
 function parseNum(s){return parseInt(s)||0}
 
 async function loadSheet(name){
   const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(name)}`;
-  const res=await fetch(url);
-  const text=await res.text();
+  const res=await fetch(url);const text=await res.text();
   const rows=text.trim().split('\n').map(l=>{
     const r=[],re=/("(?:[^"]|"")*"|[^,]*),?/g;let m;
     while((m=re.exec(l))!==null){if(m[0]==='')break;r.push(m[1].replace(/^"|"$/g,'').replace(/""/g,'"').trim())}
@@ -246,22 +271,18 @@ async function loadSheet(name){
 }
 
 async function loadAllSheets(){
-  if(sheetsLoading)return;
-  sheetsLoading=true;
-  toast('Cargando desde Google Sheets...');
+  if(sheetsLoading)return;sheetsLoading=true;toast('Cargando desde Sheets...');
   try{
     const[a,b,c]=await Promise.all([loadSheet('Lubricantes'),loadSheet('Minimercado'),loadSheet('Gas + Hielo')]);
-    products={'Lubricantes':a,'Minimercado':b,'Gas + Hielo':c};
-    sheetsLoaded=true;
+    products={'Lubricantes':a,'Minimercado':b,'Gas + Hielo':c};sheetsLoaded=true;
     toast(`✓ ${a.length+b.length+c.length} productos cargados`,'success');
-    renderOpTable(); renderCierre();
-    if(admSection==='resumen'||admSection==='stock') renderAdmContent();
-  }catch(e){toast('Error al cargar. ¿El Sheets es público?','error');}
+    renderOpTable();updateCierreBar();
+    if(admSection==='resumen'||admSection==='stock')renderAdmContent();
+  }catch(e){toast('Error al cargar Sheets','error');}
   sheetsLoading=false;
 }
 
-// Turno keys
-function tKey(n){return `T${n}`}
+function tKey(n){return`T${n}`}
 function dayKeys(fk){
   const day=new Date(fk+'T12:00:00');
   const start=new Date(START_DATE.getFullYear(),START_DATE.getMonth(),START_DATE.getDate());
@@ -269,13 +290,8 @@ function dayKeys(fk){
   const keys=[];
   for(let i=0;i<3;i++){
     let num;
-    if(diff===0){
-      const ti=START_TURNO+i; if(ti>2)break;
-      num=PLANILLA_INI+i;
-    } else {
-      const t0=3-START_TURNO;
-      num=PLANILLA_INI+t0+(diff-1)*3+i;
-    }
+    if(diff===0){const ti=START_TI+i;if(ti>2)break;num=PLANILLA_INI+i;}
+    else{const t0=3-START_TI;num=PLANILLA_INI+t0+(diff-1)*3+i;}
     keys.push(tKey(num));
   }
   return keys;
@@ -284,13 +300,19 @@ function dayKeys(fk){
 function getSalesTurno(cat,id){const s=getSales();return(s[tKey(T.num)]?.[cat]?.[id])||0}
 function getSalesDay(cat,id,fk){const s=getSales();return dayKeys(fk||T.fechaKey).reduce((a,k)=>a+((s[k]?.[cat]?.[id])||0),0)}
 function getStock(p){return p.stockInicial-getSalesDay(p.categoria,p.id)}
-function recordSale(cat,id,qty){
+function isCerrado(num){return!!getCierres()[tKey(num)]}
+
+function addSale(cat,id,qty){
   const s=getSales(),k=tKey(T.num);
   if(!s[k])s[k]={};if(!s[k][cat])s[k][cat]={};
   s[k][cat][id]=(s[k][cat][id]||0)+qty;saveSales(s);
 }
-
-function isTurnoCerrado(num){return !!getCierres()[tKey(num)]}
+function setSale(cat,id,qty){
+  const s=getSales(),k=tKey(T.num);
+  if(!s[k])s[k]={};if(!s[k][cat])s[k][cat]={};
+  if(qty<=0){delete s[k][cat][id];}else{s[k][cat][id]=qty;}
+  saveSales(s);
+}
 
 // LOGIN
 document.addEventListener('DOMContentLoaded',()=>{
@@ -304,19 +326,17 @@ function doLogin(){
   const pass=document.getElementById('inp-pass').value;
   const user=USERS.find(u=>u.id===uid&&u.pass===pass);
   if(!user){document.getElementById('login-msg').innerHTML='<div class="alert alert-danger"><i class="ti ti-alert-circle"></i> Usuario o contraseña incorrectos.</div>';return;}
-  currentUser=user;
-  document.getElementById('login-msg').innerHTML='';
-  document.getElementById('inp-pass').value='';
+  currentUser=user;document.getElementById('login-msg').innerHTML='';document.getElementById('inp-pass').value='';
   showScreen(user.role==='admin'?'admin':'operador');
-  if(!sheetsLoaded) loadAllSheets();
+  if(!sheetsLoaded)loadAllSheets();
 }
 function logout(){currentUser=null;currentCat=0;showScreen('login');}
 
 function showScreen(name){
   document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
   document.getElementById('screen-'+name).classList.add('active');
-  if(name==='operador') initOp();
-  if(name==='admin') initAdm();
+  if(name==='operador')initOp();
+  if(name==='admin')initAdm();
 }
 
 // OPERADOR
@@ -326,9 +346,8 @@ function initOp(){
   document.getElementById('op-fecha').textContent=T.fecha;
   document.getElementById('op-num').textContent='Planilla '+planillaStr(T.num);
   document.getElementById('op-user-badge').textContent=currentUser.name;
-  buildOpTabs(); renderOpTable(); renderCierre();
+  buildOpTabs();renderOpTable();updateCierreBar();
 }
-
 function buildOpTabs(){
   document.getElementById('op-tabs').innerHTML=CATS.map((c,i)=>`<button class="tab ${i===currentCat?'active':''}" onclick="currentCat=${i};buildOpTabs();renderOpTable()">${c}</button>`).join('');
 }
@@ -338,18 +357,22 @@ function renderOpTable(){
   const search=(document.getElementById('op-search')?.value||'').toLowerCase();
   const prods=(products[cat]||[]).filter(p=>p.nombre&&(!search||p.nombre.toLowerCase().includes(search)));
   const el=document.getElementById('op-table');
-  const cerrado=isTurnoCerrado(T.num);
+  const cerrado=isCerrado(T.num);
+
+  const banner=document.getElementById('op-cerrado-banner');
+  if(banner) banner.innerHTML=cerrado
+    ?`<div class="alert alert-warning" style="margin-bottom:1rem"><i class="ti ti-lock"></i> <strong>Turno cerrado</strong> — Este turno ya fue cerrado y enviado a Franco.</div>`:'';
 
   if(!sheetsLoaded){el.innerHTML='<div class="alert alert-warning"><i class="ti ti-loader"></i> Cargando productos...</div>';return;}
-  if(!prods.length){el.innerHTML='<div class="alert alert-info"><i class="ti ti-info-circle"></i> Sin productos.</div>';return;}
+  if(!prods.length){el.innerHTML='<div class="alert alert-info">Sin productos encontrados.</div>';return;}
 
   let html=`<div class="table-wrap"><table>
     <thead><tr>
-      <th style="min-width:180px">Producto</th>
+      <th style="min-width:170px">Producto</th>
       <th>Precio</th>
-      <th>Stock disponible</th>
-      <th class="col-venta">✏ Cantidad vendida</th>
-      <th>Vendido este turno</th>
+      <th>Stock</th>
+      <th class="col-venta">➕ Agregar venta</th>
+      <th class="col-total">✏ Total del turno</th>
     </tr></thead><tbody>`;
 
   for(const p of prods){
@@ -358,128 +381,168 @@ function renderOpTable(){
     const out=sf<=0;
     const pid=p.id;
     const pn=p.nombre.replace(/'/g,"\\'").replace(/"/g,'\\"');
+
     html+=`<tr>
       <td><strong>${p.nombre}</strong>${out?` <span class="badge badge-out">Sin stock</span>`:''}</td>
       <td>$${p.precio.toLocaleString('es-AR')}</td>
       <td class="${out?'stock-out':''}">${sf}</td>
       <td class="col-venta">
-        <div class="venta-input-wrap">
-          <input type="number" class="venta-input" id="q_${pid}" min="0" max="${sf}" value="0"
+        <div class="venta-wrap">
+          <input type="number" class="venta-input" id="q_${pid}" min="0" value="0"
             ${out||cerrado?'disabled':''}
             oninput="checkOver(this,${sf})"
-            onkeydown="if(event.key==='Enter')doSale('${cat}','${pid}','${pn}',${p.precio})">
-          <button class="btn-registrar" id="btn_${pid}" ${out||cerrado?'disabled':''} onclick="doSale('${cat}','${pid}','${pn}',${p.precio})">
-            <i class="ti ti-check"></i> ✓
+            onkeydown="if(event.key==='Enter')doAdd('${cat}','${pid}','${pn}',${p.precio},${sf})">
+          <button class="btn-add" id="btn_${pid}" ${out||cerrado?'disabled':''} onclick="doAdd('${cat}','${pid}','${pn}',${p.precio},${sf})">
+            <i class="ti ti-plus"></i> ✓
           </button>
         </div>
-        <div id="warn_${pid}" style="font-size:11px;color:#A32D2D;margin-top:3px;display:none">
-          <i class="ti ti-alert-triangle"></i> Supera el stock disponible (${sf})
+        <div id="warn_${pid}" style="font-size:10px;color:#A32D2D;margin-top:2px;display:none">
+          <i class="ti ti-alert-triangle"></i> Supera el stock (${sf})
         </div>
       </td>
-      <td style="text-align:center">${ts?`<span class="badge badge-ok">${ts}</span>`:'—'}</td>
+      <td class="col-total" id="total-cell-${pid}">
+        ${renderTotalCell(cat,pid,ts,sf,cerrado)}
+      </td>
     </tr>`;
   }
   html+='</tbody></table></div>';
   el.innerHTML=html;
 }
 
+function renderTotalCell(cat,pid,ts,sf,cerrado){
+  if(cerrado){
+    return ts>0?`<span style="font-size:14px;font-weight:700;color:#27500A">${ts}</span>`:'<span style="color:#9ca3af">—</span>';
+  }
+  if(ts===0) return `<span style="color:#9ca3af;font-size:13px">—</span>`;
+  return `<div class="total-display" onclick="startEdit('${cat}','${pid}',${ts},${sf})" title="Tocá para corregir">
+    <span class="total-num">${ts}</span>
+    <i class="ti ti-pencil" style="font-size:12px;color:#639922"></i>
+  </div>
+  <div class="edit-hint">tocá para corregir</div>`;
+}
+
+function startEdit(cat,pid,current,maxStock){
+  if(isCerrado(T.num))return;
+  const cell=document.getElementById('total-cell-'+pid);
+  if(!cell)return;
+  cell.innerHTML=`<div class="total-edit-wrap">
+    <input type="number" class="total-input" id="tedit_${pid}" min="0" max="${maxStock}" value="${current}"
+      onkeydown="if(event.key==='Enter')saveEdit('${cat}','${pid}',${maxStock});if(event.key==='Escape')cancelEdit('${cat}','${pid}',${current},${maxStock})">
+    <button class="btn-save" onclick="saveEdit('${cat}','${pid}',${maxStock})"><i class="ti ti-check"></i></button>
+    <button class="btn-cancel-edit" onclick="cancelEdit('${cat}','${pid}',${current},${maxStock})"><i class="ti ti-x"></i></button>
+  </div>`;
+  setTimeout(()=>document.getElementById('tedit_'+pid)?.select(),50);
+}
+
+function saveEdit(cat,pid,maxStock){
+  const inp=document.getElementById('tedit_'+pid);
+  const val=parseInt(inp?.value);
+  if(isNaN(val)||val<0){toast('Cantidad inválida','error');return;}
+  if(val>maxStock){toast(`Supera el stock disponible (${maxStock})`,'error');return;}
+  setSale(cat,pid,val);
+  toast('✓ Total corregido','success');
+  updateCierreBar();
+  const sf=getStock(Object.values(products).flat().find(x=>x.id===pid)||{stockInicial:maxStock+val});
+  const cell=document.getElementById('total-cell-'+pid);
+  if(cell) cell.innerHTML=renderTotalCell(cat,pid,val,maxStock,false);
+  // actualizar stock en esa fila
+  renderOpTable();
+}
+
+function cancelEdit(cat,pid,current,maxStock){
+  const cell=document.getElementById('total-cell-'+pid);
+  if(cell) cell.innerHTML=renderTotalCell(cat,pid,current,maxStock,false);
+}
+
 function checkOver(inp,max){
   const qty=parseInt(inp.value)||0;
-  const id=inp.id.replace('q_','');
-  const warn=document.getElementById('warn_'+id);
-  const btn=document.getElementById('btn_'+id);
+  const pid=inp.id.replace('q_','');
+  const warn=document.getElementById('warn_'+pid);
+  const btn=document.getElementById('btn_'+pid);
   if(qty>max){inp.classList.add('over');if(warn)warn.style.display='block';if(btn)btn.disabled=true;}
   else{inp.classList.remove('over');if(warn)warn.style.display='none';if(btn)btn.disabled=false;}
 }
 
-function doSale(cat,id,nombre,precio){
-  if(isTurnoCerrado(T.num)){toast('El turno está cerrado','error');return;}
+function doAdd(cat,id,nombre,precio,maxStock){
+  if(isCerrado(T.num)){toast('El turno está cerrado','error');return;}
   const inp=document.getElementById('q_'+id);
   const qty=parseInt(inp?.value)||0;
   if(qty<=0){toast('Ingresá una cantidad mayor a 0','error');return;}
-  const p=products[cat].find(x=>x.id===id);
-  if(!p)return;
-  if(qty>getStock(p)){toast(`Stock insuficiente (disponible: ${getStock(p)})`,'error');return;}
-  recordSale(cat,id,qty);
+  const current=getSalesTurno(cat,id);
+  const sf=getStock(Object.values(products).flat().find(x=>x.id===id)||{stockInicial:0});
+  if(qty>sf){toast(`Stock insuficiente (disponible: ${sf})`,'error');return;}
+  addSale(cat,id,qty);
   if(inp){inp.value=0;inp.classList.remove('over');}
   const warn=document.getElementById('warn_'+id);if(warn)warn.style.display='none';
-  toast(`✓ ${qty} × ${nombre}  →  $${(qty*precio).toLocaleString('es-AR')}`,'success');
+  toast(`✓ +${qty} × ${nombre}  →  $${(qty*precio).toLocaleString('es-AR')}`,'success');
+  updateCierreBar();
   renderOpTable();
 }
 
-function renderCierre(){
-  const el=document.getElementById('op-cierre');if(!el)return;
-  const cerrado=isTurnoCerrado(T.num);
-  const c=getCierres()[tKey(T.num)];
-
-  // banner si está cerrado
-  const banner=document.getElementById('op-cerrado-banner');
-  if(banner){
-    banner.innerHTML=cerrado?`<div class="alert alert-warning" style="margin-bottom:1rem"><i class="ti ti-lock"></i> <strong>Turno cerrado</strong> — Solo lectura. El turno ${T.nombre} ${planillaStr(T.num)} fue cerrado${c?' por '+c.user+' a las '+c.hora:''}.  </div>`:'';
-  }
-
-  if(cerrado){
-    el.innerHTML=`<div class="cierre-box" style="border-color:#d1d5db">
-      <div style="font-size:15px;font-weight:600;color:#6b7280"><i class="ti ti-lock"></i> Turno cerrado</div>
-      <div style="font-size:13px;color:#9ca3af;margin-top:4px">Cerrado${c?' por '+c.user+' a las '+c.hora:''}</div>
-    </div>`;
-    return;
-  }
-
-  // Calcular totales del turno
+// CIERRE BAR
+function getTurnoTotals(){
   const s=getSales(),k=tKey(T.num);
-  let totalU=0,totalM=0;
+  let u=0,m=0;
   for(const cat of CATS){
     if(!s[k]?.[cat])continue;
-    for(const[pid,qty]of Object.entries(s[k][cat])){
+    for(const[pid,qty] of Object.entries(s[k][cat])){
       const p=Object.values(products).flat().find(x=>x.id===pid);
-      if(p){totalU+=qty;totalM+=qty*p.precio;}
+      if(p){u+=qty;m+=qty*p.precio;}
     }
   }
+  return{u,m};
+}
 
-  el.innerHTML=`<div class="cierre-box">
-    <div style="font-size:15px;font-weight:600;color:#27500A;margin-bottom:.5rem"><i class="ti ti-checks"></i> Cerrar turno ${planillaStr(T.num)}</div>
-    <div style="font-size:13px;color:#6b7280;margin-bottom:1rem">
-      ${totalU>0?`Registraste <strong>${totalU} unidades</strong> por un total de <strong>$${totalM.toLocaleString('es-AR')}</strong>.`:'No registraste ventas en este turno.'}
-    </div>
-    <button class="btn btn-green" onclick="confirmarCierre()"><i class="ti ti-lock"></i> Cerrar y enviar a Franco</button>
-  </div>`;
+function updateCierreBar(){
+  const bar=document.getElementById('cierre-bar');
+  const info=document.getElementById('cierre-info');
+  const btn=document.getElementById('cierre-btn');
+  if(!bar||!info||!btn)return;
+  const cerrado=isCerrado(T.num);
+  const c=getCierres()[tKey(T.num)];
+  if(cerrado){
+    bar.className='cierre-bar cerrado';
+    info.className='cierre-info cerrado-txt';
+    info.innerHTML=`<i class="ti ti-lock"></i> <strong>Turno ${planillaStr(T.num)} cerrado</strong>${c?' · Cerrado por '+c.user+' a las '+c.hora:''}`;
+    btn.style.display='none';
+  } else {
+    bar.className='cierre-bar';
+    info.className='cierre-info';
+    const{u,m}=getTurnoTotals();
+    info.innerHTML=u>0
+      ?`Turno <strong>${planillaStr(T.num)}</strong> · <strong>${u} uds</strong> · <strong>$${m.toLocaleString('es-AR')}</strong>`
+      :`Turno <strong>${planillaStr(T.num)}</strong> · Sin ventas registradas aún`;
+    btn.style.display='';
+  }
 }
 
 function confirmarCierre(){
-  const s=getSales(),k=tKey(T.num);
-  let totalU=0,totalM=0,detalle=[];
-  for(const cat of CATS){
-    if(!s[k]?.[cat])continue;
-    for(const[pid,qty]of Object.entries(s[k][cat])){
-      const p=Object.values(products).flat().find(x=>x.id===pid);
-      if(p){totalU+=qty;totalM+=qty*p.precio;detalle.push(`${p.nombre}: ${qty}`);}
-    }
-  }
+  const{u,m}=getTurnoTotals();
   const modal=document.getElementById('modal');
   modal.innerHTML=`<div class="modal-overlay">
     <div class="modal">
       <h2><i class="ti ti-lock"></i> ¿Cerrar turno?</h2>
       <p>Planilla <strong>${planillaStr(T.num)}</strong> · Turno <strong>${T.nombre}</strong> · ${T.fecha}<br><br>
-      <strong>${totalU} unidades vendidas</strong><br>Total: <strong>$${totalM.toLocaleString('es-AR')}</strong><br><br>
+      <strong>${u} unidades vendidas</strong><br>
+      Total: <strong>$${m.toLocaleString('es-AR')}</strong><br><br>
       Una vez cerrado no podés agregar más ventas a este turno.</p>
-      <div class="btns">
+      <div class="modal-btns">
         <button class="btn" onclick="document.getElementById('modal').innerHTML=''">Cancelar</button>
-        <button class="btn btn-green" onclick="ejecutarCierre(${totalU},${totalM})"><i class="ti ti-check"></i> Confirmar cierre</button>
+        <button class="btn btn-green" onclick="ejecutarCierre(${u},${m})"><i class="ti ti-check"></i> Confirmar cierre</button>
       </div>
     </div>
   </div>`;
 }
 
-function ejecutarCierre(totalU,totalM){
+function ejecutarCierre(u,m){
   const ahora=new Date();
   const hora=ahora.toLocaleTimeString('es-AR',{hour:'2-digit',minute:'2-digit'});
   const c=getCierres();
-  c[tKey(T.num)]={user:currentUser.name,hora,fecha:T.fecha,planilla:T.num,totalU,totalM};
+  c[tKey(T.num)]={user:currentUser.name,hora,fecha:T.fecha,planilla:T.num,totalU:u,totalM:m};
   saveCierres(c);
   document.getElementById('modal').innerHTML='';
-  toast('✓ Turno cerrado correctamente','success');
-  renderOpTable(); renderCierre();
+  toast('✓ Turno cerrado y enviado a Franco','success');
+  updateCierreBar();renderOpTable();
 }
 
 // ADMIN
@@ -494,17 +557,15 @@ function initAdm(){
 function showAdm(name,btn){
   admSection=name;
   document.querySelectorAll('#screen-admin .tab').forEach(t=>t.classList.remove('active'));
-  if(btn)btn.classList.add('active');
-  renderAdmContent();
+  if(btn)btn.classList.add('active');renderAdmContent();
 }
 function renderAdmContent(){
   const el=document.getElementById('adm-content');if(!el)return;
-  if(admSection==='resumen') el.innerHTML=renderResumen();
-  else if(admSection==='turnos') el.innerHTML=renderTurnos();
-  else if(admSection==='stock') el.innerHTML=renderStock();
+  if(admSection==='resumen')el.innerHTML=renderResumen();
+  else if(admSection==='turnos')el.innerHTML=renderTurnos();
+  else if(admSection==='stock')el.innerHTML=renderStock();
   else el.innerHTML=renderUsuarios();
 }
-
 function renderResumen(){
   const cat=CATS[admCat];
   const rows=(products[cat]||[]).filter(p=>p.nombre).map(p=>{
@@ -516,12 +577,12 @@ function renderResumen(){
   const totP=rows.filter(r=>r.ventas>0).length;
   const keys=dayKeys(T.fechaKey);
   const porTurno=TURNOS.map((nom,i)=>{
-    const k=keys[i]||''; const s=getSales();let m=0,u=0;
+    const k=keys[i]||'';const s=getSales();let m=0,u=0;
     if(s[k]?.[cat])for(const[pid,q]of Object.entries(s[k][cat])){const p=(products[cat]||[]).find(x=>x.id===pid);if(p){m+=q*p.precio;u+=q;}}
-    const numPlan=k?parseInt(k.replace('T','')):null;
-    const cerrado=numPlan?isTurnoCerrado(numPlan):false;
-    const cierreInfo=numPlan?getCierres()[tKey(numPlan)]:null;
-    return{nom,m,u,cerrado,cierreInfo,numPlan};
+    const num=k?parseInt(k.replace('T','')):null;
+    const cerrado=num?isCerrado(num):false;
+    const ci=num?getCierres()[tKey(num)]:null;
+    return{nom,m,u,cerrado,ci,num};
   });
   return`
   <div class="metrics">
@@ -531,46 +592,41 @@ function renderResumen(){
   </div>
   <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:1rem">
     ${porTurno.map(t=>`<div class="metric">
-      <div style="margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:6px">
+      <div style="margin-bottom:4px;display:flex;align-items:center;justify-content:center;gap:5px">
         <span class="badge badge-${t.nom}">${t.nom}</span>
-        ${t.cerrado?`<span class="badge badge-cerrado"><i class="ti ti-lock" style="font-size:10px"></i> cerrado</span>`:''}
+        ${t.cerrado?`<span class="badge badge-cerrado"><i class="ti ti-lock" style="font-size:10px"></i></span>`:'<span style="font-size:10px;color:#f59e0b">● abierto</span>'}
       </div>
       <div class="metric-val" style="font-size:16px">$${t.m.toLocaleString('es-AR')}</div>
-      ${t.cierreInfo?`<div style="font-size:11px;color:#6b7280;margin-top:2px">${t.cierreInfo.user} · ${t.cierreInfo.hora}</div>`:''}
+      ${t.ci?`<div style="font-size:11px;color:#6b7280;margin-top:2px">${t.ci.user} · ${t.ci.hora}</div>`:''}
     </div>`).join('')}
   </div>
   <div class="tab-bar">${CATS.map((c,i)=>`<button class="tab ${i===admCat?'active':''}" onclick="admCat=${i};renderAdmContent()">${c}</button>`).join('')}</div>
   <div class="table-wrap"><table>
     <thead><tr><th>Producto</th><th>Precio</th><th>Stock ini.</th><th class="col-venta">Ventas del día</th><th>Stock final</th><th>Monto</th></tr></thead>
     <tbody>${rows.map(r=>`<tr style="${r.ventas>0?'font-weight:500':''}">
-      <td>${r.nombre}</td>
-      <td>$${r.precio.toLocaleString('es-AR')}</td>
-      <td>${r.stockInicial}</td>
+      <td>${r.nombre}</td><td>$${r.precio.toLocaleString('es-AR')}</td><td>${r.stockInicial}</td>
       <td class="col-venta" style="text-align:center">${r.ventas>0?`<span class="badge badge-ok">${r.ventas}</span>`:'—'}</td>
       <td class="${r.sf<=0?'stock-out':''}">${r.sf}</td>
       <td>${r.monto>0?'$'+r.monto.toLocaleString('es-AR'):'—'}</td>
     </tr>`).join('')}</tbody>
   </table></div>`;
 }
-
 function renderTurnos(){
   const c=getCierres();
   const items=Object.entries(c).sort((a,b)=>b[1].planilla-a[1].planilla);
   if(!items.length)return`<div class="alert alert-info"><i class="ti ti-info-circle"></i> Aún no hay turnos cerrados.</div>`;
   return`<div class="card">
     <div class="section-title"><i class="ti ti-clock"></i> Turnos cerrados</div>
-    <table><thead><tr><th>Planilla</th><th>Fecha</th><th>Cerrado por</th><th>Hora</th><th>Unidades</th><th>Total</th></tr></thead>
-    <tbody>${items.map(([k,v])=>`<tr>
-      <td><strong>${planillaStr(v.planilla)}</strong></td>
-      <td>${v.fecha}</td>
-      <td>${v.user}</td>
-      <td>${v.hora}</td>
-      <td>${v.totalU}</td>
-      <td>$${v.totalM.toLocaleString('es-AR')}</td>
-    </tr>`).join('')}</tbody></table>
-  </div>`;
+    <div class="table-wrap"><table>
+      <thead><tr><th>Planilla</th><th>Fecha</th><th>Cerrado por</th><th>Hora cierre</th><th>Uds vendidas</th><th>Total $</th></tr></thead>
+      <tbody>${items.map(([k,v])=>`<tr>
+        <td><strong>${planillaStr(v.planilla)}</strong></td>
+        <td>${v.fecha}</td><td>${v.user}</td><td>${v.hora}</td>
+        <td>${v.totalU}</td><td>$${v.totalM.toLocaleString('es-AR')}</td>
+      </tr>`).join('')}
+      </tbody></table>
+  </div></div>`;
 }
-
 function renderStock(){
   const total=Object.values(products).reduce((a,v)=>a+v.length,0);
   return`<div class="card">
@@ -584,14 +640,12 @@ function renderStock(){
     <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit" target="_blank" class="btn"><i class="ti ti-table"></i> Abrir Google Sheets</a>
   </div>`;
 }
-
 function renderUsuarios(){
   return`<div class="card">
     <div class="section-title"><i class="ti ti-users"></i> Usuarios</div>
     <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Contraseña</th></tr></thead>
     <tbody>${USERS.map(u=>`<tr><td><strong>${u.name}</strong></td><td><code>${u.id}</code></td><td><span class="badge badge-${u.role==='admin'?'admin':'operador'}">${u.role}</span></td><td><code>${u.pass}</code></td></tr>`).join('')}</tbody>
-    </table>
-  </div>`;
+    </table></div>`;
 }
 
 let toastTimer;
