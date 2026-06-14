@@ -444,7 +444,9 @@ function renderOpTable(){
   for(const p of prods){
     const sf=getStock(p);
     const ts=getSaleTurno(cat,p.id);
-    const out=sf<=0;
+    const out=sf<=0 && p.stockInicial>0;
+    const gasHielo=(cat==='Gas + Hielo');
+    const maxVenta=gasHielo?9999:sf;
     const esc=p.id.replace(/'/g,"\\'");
     const pn=p.nombre.replace(/'/g,"\\'").replace(/"/g,'\\"');
     html+=`<tr>
@@ -454,18 +456,18 @@ function renderOpTable(){
       <td class="col-venta">
         <div class="venta-wrap">
           <input type="number" class="venta-input" id="q_${p.id}" min="0" value="0" ${out||cerrado?'disabled':''}
-            oninput="chkOver(this,${sf})"
-            onkeydown="if(event.key==='Enter')doAdd('${cat}','${esc}','${pn}',${p.precio},${sf})">
+            oninput="chkOver(this,${maxVenta})"
+            onkeydown="if(event.key==='Enter')doAdd('${cat}','${esc}','${pn}',${p.precio},${maxVenta})">
           <button class="btn-add" id="btn_${p.id}" ${out||cerrado?'disabled':''}
-            onclick="doAdd('${cat}','${esc}','${pn}',${p.precio},${sf})">
+            onclick="doAdd('${cat}','${esc}','${pn}',${p.precio},${maxVenta})">
             <i class="ti ti-plus"></i> ✓
           </button>
         </div>
         <div id="warn_${p.id}" style="font-size:10px;color:#A32D2D;margin-top:2px;display:none">
-          ⚠ Supera el stock (${sf})
+          ⚠ Supera el stock (${maxVenta})
         </div>
       </td>
-      <td class="col-total" id="tc_${p.id}">${renderTC(cat,p.id,ts,sf,cerrado)}</td>
+      <td class="col-total" id="tc_${p.id}">${renderTC(cat,p.id,ts,maxVenta,cerrado)}</td>
     </tr>`;
   }
   html+='</tbody></table></div>';
