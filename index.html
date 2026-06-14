@@ -329,11 +329,17 @@ async function loadSheet(name){
   const prods=[];let hf=false;
   for(const row of rows){
     const f=(row[0]||'').toUpperCase();
-    if(f.includes('PRODUCTO')){hf=true;continue;}
+    const rowStr=row.join(',').toUpperCase();
+    // Detectar fila de encabezado: contiene PRODUCTO o (PRECIO y está al inicio)
+    if(f.includes('PRODUCTO')||(!hf&&rowStr.includes('PRECIO')&&rowStr.includes('STOCK'))){
+      hf=true;continue;
+    }
     if(!hf)continue;
     const nombre=(row[0]||'').trim();
-    if(!nombre||f.includes('TOTAL'))continue;
+    if(!nombre||f.includes('TOTAL')||nombre===',')continue;
     const precio=parseInt((row[1]||'').replace(/[$.\s]/g,'').replace(',',''))||0;
+    // Gas+Hielo tiene columna extra "Agregados" antes de Ventas y Stock final
+    // Columnas: nombre, precio, stock_ini, [agregados], ventas, stock_final, total
     const stockInicial=parseInt(row[2])||0;
     prods.push({id:nombre.toLowerCase().replace(/[^a-z0-9]/g,'_').replace(/__+/g,'_'),nombre,precio,stockInicial,categoria:name});
   }
