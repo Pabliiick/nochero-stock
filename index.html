@@ -179,14 +179,14 @@ const TURNOS=['mañana','tarde','noche'];
 const CATS=['Lubricantes','Minimercado','Gas + Hielo'];
 
 const USERS=[
-  {id:'franco', name:'Franco', role:'admin',    pass:'franco123', refuerzo:false},
-  {id:'sergio', name:'Sergio', role:'operador', pass:'sergio123', refuerzo:false},
-  {id:'elias',  name:'Elías',  role:'operador', pass:'elias123',  refuerzo:false},
-  {id:'luciano',name:'Luciano',role:'operador', pass:'luciano123',refuerzo:false},
-  {id:'gabi',   name:'Gabi',   role:'operador', pass:'gabi123',   refuerzo:false},
-  {id:'eitan',  name:'Eitan',  role:'operador', pass:'eitan123',  refuerzo:true},
-  {id:'anibal', name:'Aníbal', role:'operador', pass:'anibal123', refuerzo:true},
-  {id:'agus',   name:'Agus',   role:'operador', pass:'agus123',   refuerzo:true},
+  {id:'franco', name:'Franco', role:'admin',    cargo:'Administrador', pass:'franco123', refuerzo:false},
+  {id:'sergio', name:'Sergio', role:'operador', cargo:'Jefe de Turno', pass:'sergio123', refuerzo:false},
+  {id:'elias',  name:'Elías',  role:'operador', cargo:'Jefe de Turno', pass:'elias123',  refuerzo:false},
+  {id:'luciano',name:'Luciano',role:'operador', cargo:'Jefe de Turno', pass:'luciano123',refuerzo:false},
+  {id:'gabi',   name:'Gabi',   role:'operador', cargo:'Jefe de Turno', pass:'gabi123',   refuerzo:false},
+  {id:'eitan',  name:'Eitan',  role:'operador', cargo:'Refuerzo',      pass:'eitan123',  refuerzo:true},
+  {id:'anibal', name:'Aníbal', role:'operador', cargo:'Refuerzo',      pass:'anibal123', refuerzo:true},
+  {id:'agus',   name:'Agus',   role:'operador', cargo:'Refuerzo',      pass:'agus123',   refuerzo:true},
 ];
 
 // ═══════════════════════════════════════════════════
@@ -414,7 +414,8 @@ function initOp(){
   document.getElementById('op-badge-turno').className='badge badge-'+T.nombre;
   document.getElementById('op-fecha').textContent=T.fecha;
   document.getElementById('op-planilla').textContent='Planilla '+pStr(T.num);
-  document.getElementById('op-user-badge').textContent=currentUser.name+(currentUser.refuerzo?' ★':'');
+  document.getElementById('op-user-badge').textContent=currentUser.name;
+  document.getElementById('op-user-badge').title=currentUser.cargo||'';
   buildOpTabs();renderOpTable();updateCierreBar();
 }
 function buildOpTabs(){
@@ -898,13 +899,14 @@ function renderUsuarios(){
   return`<div class="card">
     <div class="section-title"><i class="ti ti-users"></i> Usuarios</div>
     <p style="font-size:13px;color:#6b7280;margin-bottom:1rem">Clic en 🔑 para cambiar contraseña.</p>
-    <table><thead><tr><th>Nombre</th><th>Usuario</th><th>Rol</th><th>Contraseña</th><th></th></tr></thead>
+    <table><thead><tr><th>Nombre</th><th>Cargo</th><th>Usuario</th><th>Contraseña</th><th></th></tr></thead>
     <tbody>${USERS.map(u=>{
       const pass=passes[u.id]||u.pass;
+      const cargoBadgeColor=u.cargo==='Administrador'?'#27500A;background:#EAF3DE':u.cargo==='Jefe de Turno'?'#0C447C;background:#E6F1FB':'#633806;background:#FAEEDA';
       return`<tr>
-        <td><strong>${u.name}</strong>${u.refuerzo?' <span style="font-size:10px;color:#185FA5">★ refuerzo</span>':''}</td>
+        <td><strong>${u.name}</strong></td>
+        <td><span style="font-size:11px;font-weight:600;padding:3px 9px;border-radius:999px;color:${cargoBadgeColor}">${u.cargo}</span></td>
         <td><code style="font-size:12px;background:#f3f4f6;padding:2px 6px;border-radius:4px">${u.id}</code></td>
-        <td><span class="badge badge-${u.role==='admin'?'admin':'operador'}">${u.role}</span></td>
         <td><code style="font-size:12px;background:#f3f4f6;padding:2px 6px;border-radius:4px">${pass}</code></td>
         <td><button class="btn btn-sm" onclick="editarPass('${u.id}','${u.name}')"><i class="ti ti-key"></i></button></td>
       </tr>`;
