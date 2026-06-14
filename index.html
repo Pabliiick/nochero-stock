@@ -318,7 +318,8 @@ let products={'Lubricantes':[],'Minimercado':[],'Gas + Hielo':[]};
 let sheetsLoaded=false,sheetsLoading=false;
 
 async function loadSheet(name){
-  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(name)}`;
+  // Usar gviz/tq que es más confiable para nombres de hojas con espacios/caracteres
+  const url=`https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(name)}`;
   const text=await(await fetch(url)).text();
   const rows=text.trim().split('\n').map(l=>{
     const r=[],re=/("(?:[^"]|"")*"|[^,]*),?/g;let m;
