@@ -216,12 +216,13 @@ function diffDiasFk(fk1, fk2){
 
 // Número de planilla para un día (diff desde inicio) y turno (ti)
 function planillaNum(diffDays, ti){
+  const p0=parseInt(localStorage.getItem('nv4_p0')||String(P0));
   if(diffDays===0){
     if(ti<START_TI) return null; // no existe
-    return P0+(ti-START_TI);
+    return p0+(ti-START_TI);
   }
   const turnosDia0=3-START_TI; // 2
-  return P0+turnosDia0+(diffDays-1)*3+ti;
+  return p0+turnosDia0+(diffDays-1)*3+ti;
 }
 
 // Fecha actual en Argentina
@@ -588,6 +589,7 @@ function renderResumen(){
   if(!admFk)admFk=T.fk;
   const fk=admFk;
   const diff=diffDiasFk(FK_INICIO,fk);
+  const day=new Date(fk+'T12:00:00');
   const esHoy=fk===T.fk;
   const esPrimerDia=diff<=0;
   const ar=ahoraAR();
@@ -825,8 +827,14 @@ function guardarEdicion(k){
   renderAdmContent();
 }
 
+function getP0real(){return parseInt(localStorage.getItem('nv4_p0')||String(P0));}
+function setP0real(n){localStorage.setItem('nv4_p0',String(n));}
+
 function renderStock(){
   const total=Object.values(products).reduce((a,v)=>a+v.length,0);
+  const p0actual=getP0real();
+  // Calcular planilla actual con el P0 guardado
+  const numActual=planillaNumCustom(T.diff,T.ti,p0actual);
   return`<div class="card">
     <div class="section-title"><i class="ti ti-refresh"></i> Recargar desde Google Sheets</div>
     <p style="font-size:13px;color:#6b7280;margin-bottom:1rem">Trae precios y stock actualizados.</p>
@@ -834,14 +842,46 @@ function renderStock(){
     ${sheetsLoaded?`<div class="alert alert-success" style="margin-top:1rem"><i class="ti ti-check"></i> ${total} productos cargados.</div>`:''}
   </div>
   <div class="card">
-    <div class="section-title"><i class="ti ti-hash"></i> Actualizar número de planilla</div>
-    <p style="font-size:13px;color:#6b7280;margin-bottom:12px">Planilla calculada automáticamente: <strong>${pStr(T.num)}</strong></p>
-    <p style="font-size:12px;color:#9ca3af">La numeración es automática: tarde ${pStr(P0)} → noche ${pStr(P0+1)} → mañana ${pStr(P0+2)}, etc. Si necesitás ajustar, contactá al desarrollador.</p>
+    <div class="section-title"><i class="ti ti-hash"></i> Ajustar número de planilla</div>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:8px">
+      Planilla actual del sistema: <strong>${pStr(T.num)}</strong><br>
+      <span style="font-size:12px">13/6 tarde=#19186 · noche=#19187 · 14/6 mañana=#19188 · tarde=#19189</span>
+    </p>
+    <p style="font-size:13px;color:#6b7280;margin-bottom:8px">Si el número no coincide, ingresá cuál debería ser la planilla de <strong>hoy ${T.nombre}</strong>:</p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap">
+      <input type="number" id="inp-p0" value="${T.num}" style="width:130px;margin:0;padding:8px 10px">
+      <button class="btn btn-primary" onclick="ajustarPlanilla()"><i class="ti ti-check"></i> Aplicar</button>
+      ${p0actual!==P0?`<button class="btn" style="color:#A32D2D" onclick="resetPlanilla()"><i class="ti ti-refresh"></i> Resetear</button>`:''}
+    </div>
+    <p style="font-size:12px;color:#9ca3af;margin-top:8px">El ajuste calcula la diferencia y la aplica a todos los turnos.</p>
   </div>
   <div class="card">
     <div class="section-title"><i class="ti ti-external-link"></i> Google Sheets</div>
     <a href="https://docs.google.com/spreadsheets/d/${SHEET_ID}/edit" target="_blank" class="btn"><i class="ti ti-table"></i> Abrir Google Sheets</a>
   </div>`;
+}
+
+function planillaNumCustom(diffDays,ti,p0){
+  if(diffDays===0){if(ti<START_TI)return null;return p0+(ti-START_TI);}
+  return p0+(3-START_TI)+(diffDays-1)*3+ti;
+}
+
+function ajustarPlanilla(){
+  const nueva=parseInt(document.getElementById('inp-p0')?.value)||T.num;
+  // Calcular nuevo P0: nueva = P0new + (ti-START_TI) para diff=0, o formula general
+  // nueva = P0new + offset_desde_inicio
+  // offset = planillaNum(T.diff,T.ti) - P0 = T.num - P0
+  // P0new = nueva - (T.num - P0)
+  const offsetActual=T.num-P0;
+  const p0new=nueva-offsetActual;
+  setP0real(p0new);
+  toast('✓ Planilla ajustada. Recargando...','success');
+  setTimeout(()=>location.reload(),1200);
+}
+function resetPlanilla(){
+  localStorage.removeItem('nv4_p0');
+  toast('Planilla reseteada al valor original','success');
+  setTimeout(()=>location.reload(),1200);
 }
 
 function renderUsuarios(){
